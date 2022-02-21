@@ -1,4 +1,7 @@
 package com.cis.gorecipe.repository;
 
-public class UserRepository {
+import com.cis.gorecipe.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<Long, User> {
 }
