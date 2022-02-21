@@ -8,13 +8,12 @@ import com.cis.gorecipe.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -25,49 +24,63 @@ public class UserController {
 
     private IngredientRepository ingredientRepository;
 
-    public UserController(UserRepository userRepository, RecipeRepository recipeRepository, IngredientRepository ingredientRepository) {
+    public UserController(UserRepository userRepository, RecipeRepository recipeRepository,
+                          IngredientRepository ingredientRepository) {
         this.userRepository = userRepository;
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
     }
 
-    public ResponseEntity<UserDTO> createUser(UserDTO userDTO) {
+    @PostMapping("/")
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
         return null;
     }
 
-    public ResponseEntity<Void> deleteUser(Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         return null;
     }
 
-    public ResponseEntity<UserDTO> updateUser(UserDTO userDTO) {
+    @PutMapping("/")
+    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
         return null;
     }
 
-    public ResponseEntity<UserDTO> getUser(Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
         return null;
     }
 
-    public ResponseEntity<UserDTO> login(String username, String password) {
+    @PostMapping("/login")
+    public ResponseEntity<UserDTO> login(@RequestParam("username") String username,
+                                         @RequestParam("password") String password) {
         return null;
     }
 
-    public ResponseEntity<List<Recipe>> getSavedRecipes(Long userId) {
+    @GetMapping("/{userId}/recipes")
+    public ResponseEntity<List<Recipe>> getSavedRecipes(@PathVariable Long userId) {
         return null;
     }
 
-    public ResponseEntity<Void> saveRecipeToAccount(Long userId, Long recipeId) {
+    @PostMapping("/{userId}/recipes/{recipeId}")
+    public ResponseEntity<Void> saveRecipeToAccount(@PathVariable Long userId, @PathVariable Long recipeId) {
         return null;
     }
 
-    public ResponseEntity<Void> unsaveRecipeFromAccount(Long userId, Long recipeId) {
+    @DeleteMapping("/{userId}/recipes/{recipeId}")
+    public ResponseEntity<Void> unsaveRecipeFromAccount(@PathVariable Long userId, @PathVariable Long recipeId) {
         return null;
     }
 
-    public ResponseEntity<Void> addDietaryRestrictionToAccount(Long userId, Long dietaryRestrictionId) {
+    @PostMapping("/{userId}/dietary-restrictions/{dietaryRestrictionId}")
+    public ResponseEntity<Void> addDietaryRestrictionToAccount(@PathVariable Long userId,
+                                                               @PathVariable Long dietaryRestrictionId) {
         return null;
     }
 
-    public ResponseEntity<Void> removeDietaryRestrictionToAccount(Long userId, Long dietaryRestrictionId) {
+    @DeleteMapping("/{userId}/dietary-restrictions/{dietaryRestrictionId}")
+    public ResponseEntity<Void> removeDietaryRestrictionToAccount(@PathVariable Long userId,
+                                                                  @PathVariable Long dietaryRestrictionId) {
         return null;
     }
 }
