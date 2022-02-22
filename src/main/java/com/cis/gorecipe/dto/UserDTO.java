@@ -68,7 +68,17 @@ public class UserDTO {
      *
      * @param user a User object to be converted for serialization
      */
-    public UserDTO(User user) {}
+    public UserDTO(User user) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+        this.birthDate = user.getBirthDate();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.dietaryRestrictions = user.getDietaryRestrictions();
+        this.savedRecipes = user.getSavedRecipes();
+        this.favoriteIngredients = user.getFavoriteIngredients();
+    }
 
     /**
      *
@@ -76,7 +86,7 @@ public class UserDTO {
      * @return a UserDTO object to be used for serialization
      */
     public static UserDTO mapFromUser(User user) {
-        return null;
+        return new UserDTO(user);
     }
 
     /**
@@ -85,6 +95,15 @@ public class UserDTO {
      * @return a User object to be used internally
      */
     public static User mapToUser(UserDTO userDTO) {
-        return null;
+
+        return new User().setEmail(userDTO.getEmail())
+                         .setUsername(userDTO.getUsername())
+                         .setFirstName(userDTO.getFirstName())
+                         .setLastName(userDTO.getLastName())
+                         .setBirthDate(userDTO.getBirthDate())
+                         .setId(userDTO.getId())
+                         .setFavoriteIngredients(userDTO.getFavoriteIngredients())
+                         .setDietaryRestrictions(userDTO.getDietaryRestrictions())
+                         .setSavedRecipes(userDTO.getSavedRecipes());
     }
 }
