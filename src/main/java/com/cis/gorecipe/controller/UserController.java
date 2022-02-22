@@ -1,13 +1,17 @@
 package com.cis.gorecipe.controller;
 
 import com.cis.gorecipe.dto.UserDTO;
+import com.cis.gorecipe.exception.UserNotFoundException;
 import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
+import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +58,18 @@ public class UserController {
      */
     @PostMapping("/")
     public ResponseEntity<UserDTO> createUser(@RequestBody User user) {
-        return null;
+
+        try {
+            user.setId(null);
+            user = userRepository.save(user);
+            return ResponseEntity.ok().body(UserDTO.mapFromUser(user));
+
+            /* if the posted data is missing values that are required
+             * or if we have a unique constraint violation */
+        } catch (PropertyValueException | DataIntegrityViolationException | IllegalStateException e) {
+            logger.warn(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
     }
 
     /**
@@ -63,16 +78,37 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        return null;
+
+        if (!userRepository.existsById(id))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        userRepository.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     /**
      * @param userDTO the data which should be used to update an existing user
      * @return a DTO representing the newly modified user
      */
-    @PutMapping("/")
-    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
-        return null;
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+
+        try {
+
+            if (!userRepository.existsById(id))
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+
+            User user = UserDTO.mapToUser(userDTO);
+            user = userRepository.save(user);
+
+            return ResponseEntity.ok().body(new UserDTO(user));
+
+            /* if the posted data is missing values that are required
+             * or if we have a unique constraint violation */
+        } catch (PropertyValueException | DataIntegrityViolationException e) {
+            logger.warn(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
     }
 
     /**
@@ -81,7 +117,14 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
-        return null;
+
+        User user = userRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Unable to find user " + id)
+                );
+
+        return ResponseEntity.ok().body(new UserDTO(user));
     }
 
     /**
@@ -92,7 +135,19 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserDTO> login(@RequestParam("username") String username,
                                          @RequestParam("password") String password) {
-        return null;
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> {
+            logger.error("Attempted login with username " + username + " failed due to bad username");
+            return new UserNotFoundException(username);
+        });
+
+        /* this will need salting and hashing later */
+        if (user.getPassword().equals(password)) {
+            return ResponseEntity.ok().body(new UserDTO(user));
+        } else {
+            logger.error("Attempted login with username " + username + " failed due to incorrect password");
+            return ResponseEntity.status(401).body(null);
+        }
     }
 
     /**

@@ -36,7 +36,7 @@ public class User {
     /**
      * A salted and hashed string for authentication
      */
-    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private String password;
 
     /**

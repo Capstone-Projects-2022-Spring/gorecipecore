@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /**
  * This interface provides a way to use JPA to interface with the GoRecipe database to manage Ingredients
  */
-public interface IngredientRepository extends JpaRepository<Long, Ingredient> {
+public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
 }
