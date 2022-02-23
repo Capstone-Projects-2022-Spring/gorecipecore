@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,51 +31,57 @@ public class User {
     /**
      * A unique string for user login
      */
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String username;
 
     /**
      * A salted and hashed string for authentication
      */
-    @Setter(AccessLevel.NONE)
+    @Column(nullable = false)
     private String password;
 
     /**
      * An email address to allow communication with the user
      */
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     /**
      * The user's first name
      */
+    @Column(nullable = false)
     private String firstName;
 
     /**
      * The user's last name
      */
+    @Column(nullable = false)
     private String lastName;
 
-    /**
+    /**mannin
      * The user's birthday
      */
+    @Column(nullable = false)
     private Date birthDate;
 
     /**
      * A list of ingredients which the user would like to cook with
      */
     @ManyToMany
-    private List<Ingredient> favoriteIngredients;
+    @Column(nullable = false)
+    private List<Ingredient> favoriteIngredients = new ArrayList<>();
 
     /**
      * A list of recipes which the user would like to revisit in the future
      */
     @ManyToMany
-    private List<Recipe> savedRecipes;
+    @Column(nullable = false)
+    private List<Recipe> savedRecipes = new ArrayList<>();;
 
     /**
      * A list of restrictions on which recipes the user can cook
      */
     @ManyToMany
-    private List<DietaryRestriction> dietaryRestrictions;
+    @Column(nullable = false)
+    private List<DietaryRestriction> dietaryRestrictions = new ArrayList<>();;
 }

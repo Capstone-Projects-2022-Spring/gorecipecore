@@ -61,6 +61,7 @@ public class UserController {
 
         try {
             user.setId(null);
+            user.setPassword("test");
             user = userRepository.save(user);
             return ResponseEntity.ok().body(UserDTO.mapFromUser(user));
 
