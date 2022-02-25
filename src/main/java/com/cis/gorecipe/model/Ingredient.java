@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
  * This class allows GoRecipe to store individual ingredients (e.g. tomato, steak, flour, etc) that may be used in Recipes
@@ -27,6 +30,6 @@ public class Ingredient {
     /**
      * A unique ingredient name (e.g. rice or salmon)
      */
-    @Column(unique=true)
+    @Column(unique = true)
     private String name;
 }

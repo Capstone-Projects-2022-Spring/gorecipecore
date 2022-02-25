@@ -65,7 +65,6 @@ public class UserDTO {
     private List<DietaryRestriction> dietaryRestrictions;
 
     /**
-     *
      * @param user a User object to be converted for serialization
      */
     public UserDTO(User user) {
@@ -81,7 +80,6 @@ public class UserDTO {
     }
 
     /**
-     *
      * @param user a User object to be converted for serialization
      * @return a UserDTO object to be used for serialization
      */
@@ -90,20 +88,19 @@ public class UserDTO {
     }
 
     /**
-     *
      * @param userDTO a UserDTO object to be converted for internal use
      * @return a User object to be used internally
      */
     public static User mapToUser(UserDTO userDTO) {
 
         return new User().setEmail(userDTO.getEmail())
-                         .setUsername(userDTO.getUsername())
-                         .setFirstName(userDTO.getFirstName())
-                         .setLastName(userDTO.getLastName())
-                         .setBirthDate(userDTO.getBirthDate())
-                         .setId(userDTO.getId())
-                         .setFavoriteIngredients(userDTO.getFavoriteIngredients())
-                         .setDietaryRestrictions(userDTO.getDietaryRestrictions())
-                         .setSavedRecipes(userDTO.getSavedRecipes());
+                .setUsername(userDTO.getUsername())
+                .setFirstName(userDTO.getFirstName())
+                .setLastName(userDTO.getLastName())
+                .setBirthDate(userDTO.getBirthDate())
+                .setId(userDTO.getId())
+                .setFavoriteIngredients(userDTO.getFavoriteIngredients())
+                .setDietaryRestrictions(userDTO.getDietaryRestrictions())
+                .setSavedRecipes(userDTO.getSavedRecipes());
     }
 }

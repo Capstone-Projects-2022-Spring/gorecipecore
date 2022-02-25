@@ -26,12 +26,12 @@ public class RecipeController {
     /**
      * For interfacing with the Recipe table in the database
      */
-    private RecipeRepository recipeRepository;
+    private final RecipeRepository recipeRepository;
 
     /**
      * For interfacing with the Ingredient table in the database
      */
-    private IngredientRepository ingredientRepository;
+    private final IngredientRepository ingredientRepository;
 
     public RecipeController(RecipeRepository recipeRepository, IngredientRepository ingredientRepository) {
         this.recipeRepository = recipeRepository;

@@ -1,6 +1,5 @@
 package com.cis.gorecipe.model;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -58,7 +57,8 @@ public class User {
     @Column(nullable = false)
     private String lastName;
 
-    /**mannin
+    /**
+     * mannin
      * The user's birthday
      */
     @Column(nullable = false)
@@ -76,12 +76,12 @@ public class User {
      */
     @ManyToMany
     @Column(nullable = false)
-    private List<Recipe> savedRecipes = new ArrayList<>();;
+    private List<Recipe> savedRecipes = new ArrayList<>();
 
     /**
      * A list of restrictions on which recipes the user can cook
      */
     @ManyToMany
     @Column(nullable = false)
-    private List<DietaryRestriction> dietaryRestrictions = new ArrayList<>();;
+    private List<DietaryRestriction> dietaryRestrictions = new ArrayList<>();
 }
