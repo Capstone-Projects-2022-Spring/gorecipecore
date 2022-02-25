@@ -33,17 +33,17 @@ public class UserController {
     /**
      * For interfacing with the User table in the database
      */
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     /**
      * For interfacing with the Recipe table in the database
      */
-    private RecipeRepository recipeRepository;
+    private final RecipeRepository recipeRepository;
 
     /**
      * For interfacing with the Ingredient table in the database
      */
-    private IngredientRepository ingredientRepository;
+    private final IngredientRepository ingredientRepository;
 
     public UserController(UserRepository userRepository, RecipeRepository recipeRepository,
                           IngredientRepository ingredientRepository) {
@@ -161,7 +161,7 @@ public class UserController {
     }
 
     /**
-     * @param userId the id of the user who is saving the specified recipe
+     * @param userId   the id of the user who is saving the specified recipe
      * @param recipeId the id of the recipe which the user is attempting to save
      * @return an HTTP response that confirms if the recipe has been saved to the user's account
      */
@@ -171,7 +171,7 @@ public class UserController {
     }
 
     /**
-     * @param userId the id of the user who is removing the specified recipe
+     * @param userId   the id of the user who is removing the specified recipe
      * @param recipeId the id of the recipe which the user is attempting to remove from their account
      * @return an HTTP response that confirms if the recipe has been unsaved to the user's account
      */
@@ -181,7 +181,7 @@ public class UserController {
     }
 
     /**
-     * @param userId the id of the user who is adding a dietary restriction to their account
+     * @param userId               the id of the user who is adding a dietary restriction to their account
      * @param dietaryRestrictionId the id of the dietary restriction that the user is attempting to add to their account
      * @return an HTTP response that confirms if the dietary restriction has been added to the user's account
      */
@@ -192,7 +192,7 @@ public class UserController {
     }
 
     /**
-     * @param userId the id of the user who is removing a dietary restriction from their account
+     * @param userId               the id of the user who is removing a dietary restriction from their account
      * @param dietaryRestrictionId the id of the dietary restriction that the user is attempting to remove from their account
      * @return an HTTP response that confirms if the dietary restriction has been removed from the user's account
      */

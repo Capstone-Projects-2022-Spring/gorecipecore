@@ -8,8 +8,9 @@ import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 /**
@@ -28,17 +29,17 @@ public class FoodImageController {
     /**
      * For interfacing with the FoodImage table in the database
      */
-    private FoodImageRepository foodImageRepository;
+    private final FoodImageRepository foodImageRepository;
 
     /**
      * For interfacing with the User table in the database
      */
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     /**
      * For interfacing with the Ingredient table in the database
      */
-    private IngredientRepository ingredientRepository;
+    private final IngredientRepository ingredientRepository;
 
     public FoodImageController(FoodImageRepository foodImageRepository, UserRepository userRepository, IngredientRepository ingredientRepository) {
         this.foodImageRepository = foodImageRepository;
@@ -47,7 +48,7 @@ public class FoodImageController {
     }
 
     /**
-     * @param bytes a JPEG image as a bytestream
+     * @param bytes   a JPEG image as a bytestream
      * @param userDTO the user who has uploaded the image
      * @return the ingredient that GoRecipe has determined to be in the image
      */
@@ -62,7 +63,7 @@ public class FoodImageController {
      * @return a list of images uploaded by the specified user
      */
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<FoodImage>> getUsersImages(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<List<FoodImage>> getUserImages(@RequestBody UserDTO userDTO) {
         return null;
     }
 
