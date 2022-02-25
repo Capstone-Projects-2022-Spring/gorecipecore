@@ -1,0 +1,6 @@
+com.cis.gorecipe
+com.cis.gorecipe.controller
+com.cis.gorecipe.dto
+com.cis.gorecipe.exception
+com.cis.gorecipe.model
+com.cis.gorecipe.repository
