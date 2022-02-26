@@ -5,10 +5,12 @@ import com.cis.gorecipe.model.Ingredient;
 import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.model.User;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class acts as a transfer object for the User class to allow serialization of Users without
@@ -16,6 +18,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class UserDTO {
 
     /**
@@ -28,6 +31,8 @@ public class UserDTO {
      * A unique string for user login
      */
     private String username;
+
+    private String password;
 
     /**
      * An email address to allow communication with the user
@@ -52,17 +57,17 @@ public class UserDTO {
     /**
      * A list of ingredients which the user would like to cook with
      */
-    private List<Ingredient> favoriteIngredients;
+    private Set<Ingredient> favoriteIngredients;
 
     /**
      * A list of recipes which the user would like to revisit in the future
      */
-    private List<Recipe> savedRecipes;
+    private Set<Recipe> savedRecipes;
 
     /**
      * A list of restrictions on which recipes the user can cook
      */
-    private List<DietaryRestriction> dietaryRestrictions;
+    private Set<DietaryRestriction> dietaryRestrictions;
 
     /**
      * @param user a User object to be converted for serialization
@@ -70,6 +75,7 @@ public class UserDTO {
     public UserDTO(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
+        this.password = user.getPassword();
         this.email = user.getEmail();
         this.birthDate = user.getBirthDate();
         this.firstName = user.getFirstName();
@@ -95,6 +101,7 @@ public class UserDTO {
 
         return new User().setEmail(userDTO.getEmail())
                 .setUsername(userDTO.getUsername())
+                .setPassword(userDTO.getPassword())
                 .setFirstName(userDTO.getFirstName())
                 .setLastName(userDTO.getLastName())
                 .setBirthDate(userDTO.getBirthDate())

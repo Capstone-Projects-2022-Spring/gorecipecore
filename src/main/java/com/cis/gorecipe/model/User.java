@@ -7,8 +7,7 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * This class allows GoRecipe to store user information, including login information and personal preferences (such as favorite ingredients, favorite recipes, etc.)
@@ -58,7 +57,6 @@ public class User {
     private String lastName;
 
     /**
-     * mannin
      * The user's birthday
      */
     @Column(nullable = false)
@@ -67,21 +65,50 @@ public class User {
     /**
      * A list of ingredients which the user would like to cook with
      */
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Column(nullable = false)
-    private List<Ingredient> favoriteIngredients = new ArrayList<>();
+    private Set<Ingredient> favoriteIngredients = new HashSet<>();
 
     /**
      * A list of recipes which the user would like to revisit in the future
      */
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Column(nullable = false)
-    private List<Recipe> savedRecipes = new ArrayList<>();
+    private Set<Recipe> savedRecipes = new HashSet<>();
 
     /**
      * A list of restrictions on which recipes the user can cook
      */
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Column(nullable = false)
-    private List<DietaryRestriction> dietaryRestrictions = new ArrayList<>();
+    private Set<DietaryRestriction> dietaryRestrictions = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", birthDate=" + birthDate +
+                ", favoriteIngredients=" + favoriteIngredients +
+                ", savedRecipes=" + savedRecipes +
+                ", dietaryRestrictions=" + dietaryRestrictions +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(birthDate, user.birthDate) && Objects.equals(favoriteIngredients, user.favoriteIngredients) && Objects.equals(savedRecipes, user.savedRecipes) && Objects.equals(dietaryRestrictions, user.dietaryRestrictions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, email, firstName, lastName, birthDate, favoriteIngredients, savedRecipes, dietaryRestrictions);
+    }
 }

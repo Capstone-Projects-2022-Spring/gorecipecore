@@ -5,7 +5,9 @@ import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -45,7 +48,7 @@ class UserControllerTest {
 
     private final ObjectMapper serializer = new ObjectMapper();
 
-    private User[] mockUsers = {new User().setUsername("username1")
+    private final User[] mockUsers = {new User().setUsername("username1")
                                         .setEmail("yakir@temple.edu")
                                         .setFirstName("Yakir")
                                         .setLastName("Lebovits")
@@ -82,6 +85,11 @@ class UserControllerTest {
                                         .setBirthDate(new Date(0))
                                         .setId(6L)};
 
+    public UserControllerTest() {
+        serializer.registerModule(new JavaTimeModule());
+        serializer.setTimeZone(TimeZone.getTimeZone("EST"));
+    }
+
     /**
      * Test whether a new user (with complete and valid data) can be created
      * @throws Exception
@@ -107,8 +115,14 @@ class UserControllerTest {
      * Test whether the API will reject an attempt to create a user with invalid data
      */
     @Test
-    public void testCreateNewUserWithMissingData() {
+    public void testCreateNewUserWithMissingData() throws Exception {
 
+        User badUser = new User(); /* user without any data */
+
+       mockMvc.perform(post("/api/users/")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(serializer.writeValueAsString(badUser)))
+                    .andExpect(status().isUnprocessableEntity());
     }
 
     /**
@@ -116,7 +130,20 @@ class UserControllerTest {
      * such as an already used email or username
      */
     @Test
-    public void testCreateUserWithNonUniqueData() {
+    public void testCreateUserWithNonUniqueData() throws Exception {
+
+        mockUsers[0].setEmail("cis1@temple.edu");
+
+        mockMvc.perform(post("/api/users/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(serializer.writeValueAsString(mockUsers[0])))
+                .andExpect(status().isOk());
+
+
+        mockMvc.perform(post("/api/users/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(serializer.writeValueAsString(mockUsers[1])))
+                .andExpect(status().isUnprocessableEntity());
 
     }
 
@@ -124,119 +151,159 @@ class UserControllerTest {
      * Test whether a user that exists can be successfully deleted
      */
     @Test
-    public void testDeleteUser() {}
+    public void testDeleteUser() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to delete a user that does not exist
      */
     @Test
-    public void testDeleteUserDoesNotExist() {}
+    public void testDeleteUserDoesNotExist() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether a user that exists can have their information (e.g. first name or email) updated
      */
     @Test
-    public void testUpdateUser() {}
+    public void testUpdateUser() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to update a user that does not exist
      */
     @Test
-    public void testUpdateUserDoesNotExist() {}
+    public void testUpdateUserDoesNotExist() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the data of user that exists can be retrieved
      */
     @Test
-    public void testGetUser() {}
+    public void testGetUser() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to retrieve the data of a user that does not exist
      */
     @Test
-    public void testGetUserDoesNotExist() {}
+    public void testGetUserDoesNotExist() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will return a user's data when they have successfully logged in
      */
     @Test
-    public void testLoginSuccess() {}
+    public void testLoginSuccess() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to log in with an incorrect password
      */
     @Test
-    public void testLoginFailure() {}
+    public void testLoginFailure() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to log in with a username that does not belong to any account
      */
     @Test
-    public void testLoginWithUserDoesNotExist() {}
+    public void testLoginWithUserDoesNotExist() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether a user's saved recipes can be retrieved
      */
     @Test
-    public void testGetSavedRecipes() {}
+    public void testGetSavedRecipes() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to retrieve recipes from an account that does not exist
      */
     @Test
-    public void testGetSavedRecipesUserDoesNotExist() {}
+    public void testGetSavedRecipesUserDoesNotExist() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether a recipe that exists can be saved to a user account that exists
      */
     @Test
-    public void testSaveRecipeToAccount() {}
+    public void testSaveRecipeToAccount() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to save a recipe that exists to an account that does not exist
      */
     @Test
-    public void testSaveRecipeToAccountUserDoesNotExist() {}
+    public void testSaveRecipeToAccountUserDoesNotExist() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to save a recipe that does not exist to an account that does exist
      */
     @Test
-    public void testSaveRecipeDoesNotExistToAccount() {}
+    public void testSaveRecipeDoesNotExistToAccount() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether a dietary restriction can be added to an account
      */
     @Test
-    public void testAddDietaryRestrictionToAccount() {}
+    public void testAddDietaryRestrictionToAccount() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to add a dietary restriction to an account that does not exist
      */
     @Test
-    public void testAddDietaryRestrictionToAccountUserDoesNotExist() {}
+    public void testAddDietaryRestrictionToAccountUserDoesNotExist() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to add a dietary restriction that does not exist to an account that does exist
      */
     @Test
-    public void testAddDietaryRestrictionDoesNotExistToAccount() {}
+    public void testAddDietaryRestrictionDoesNotExistToAccount() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether a dietary restriction can be removed from an account
      */
     @Test
-    public void testRemoveDietaryRestrictionFromAccount() {}
+    public void testRemoveDietaryRestrictionFromAccount() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to remove a dietary restriction from an account that does not exist
      */
     @Test
-    public void testRemoveDietaryRestrictionFromAccountUserDoesNotExist() {}
+    public void testRemoveDietaryRestrictionFromAccountUserDoesNotExist() {
+        fail("Not yet implemented");
+    }
 
     /**
      * Test whether the API will reject an attempt to remove a dietary restriction that does not exist from an account that does exist
      */
     @Test
-    public void testRemoveDietaryRestrictionDoesNotExistFromAccount() {}
+    public void testRemoveDietaryRestrictionDoesNotExistFromAccount() {
+        fail("Not yet implemented");
+    }
 }
