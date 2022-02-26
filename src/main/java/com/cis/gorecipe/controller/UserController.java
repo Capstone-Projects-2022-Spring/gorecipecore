@@ -97,7 +97,7 @@ public class UserController {
         try {
 
             if (!userRepository.existsById(id))
-                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
             User user = UserDTO.mapToUser(userDTO);
             user = userRepository.save(user);
