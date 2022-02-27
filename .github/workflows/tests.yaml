@@ -2,7 +2,7 @@ name: tests
 on: push
 jobs:
   run_tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-21.04
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2

@@ -123,6 +123,7 @@ class UserControllerTest {
         User actual = UserDTO.mapToUser(serializer.readValue(result, UserDTO.class));
         Optional<User> storedUser = userRepository.findById(actual.getId());
         assertTrue(storedUser.isPresent());
+        logger.debug(Boolean.toString(storedUser.get().equals(actual)));
         assertEquals(storedUser.get(), actual);
     }
 
