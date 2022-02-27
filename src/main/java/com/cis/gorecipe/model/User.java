@@ -104,7 +104,17 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(birthDate, user.birthDate) && Objects.equals(favoriteIngredients, user.favoriteIngredients) && Objects.equals(savedRecipes, user.savedRecipes) && Objects.equals(dietaryRestrictions, user.dietaryRestrictions);
+        return Objects.equals(id, user.id) &&
+               Objects.equals(username, user.username) &&
+               Objects.equals(password, user.password) &&
+               Objects.equals(email, user.email) &&
+               Objects.equals(firstName, user.firstName) &&
+               Objects.equals(lastName, user.lastName) &&
+               Objects.equals(birthDate, user.birthDate);
+
+        /*Objects.equals(favoriteIngredients, user.favoriteIngredients) &&
+               Objects.equals(savedRecipes, user.savedRecipes) &&
+               Objects.equals(dietaryRestrictions, user.dietaryRestrictions);*/
     }
 
     @Override
