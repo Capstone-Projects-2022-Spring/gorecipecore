@@ -119,6 +119,6 @@ public class User {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, password, email, firstName, lastName, birthDate, favoriteIngredients, savedRecipes, dietaryRestrictions);
+        return Objects.hash(id, username, password, email, firstName, lastName, birthDate);//, favoriteIngredients, savedRecipes, dietaryRestrictions);
     }
 }
