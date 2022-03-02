@@ -69,42 +69,42 @@ class UserControllerTest {
                         .setLastName("Lebovits")
                         .setBirthDate(new Date(0))
                         .setId(1L)
-                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
+                        .setPassword("password"),
                 new User().setUsername("username2")
                         .setEmail("cis1@temple.edu")
                         .setFirstName("Sean")
                         .setLastName("Williams")
                         .setBirthDate(new Date(0))
                         .setId(2L)
-                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
+                        .setPassword("password"),
                 new User().setUsername("username3")
                         .setEmail("cis2@temple.edu")
                         .setFirstName("Olivia")
                         .setLastName("Felmey")
                         .setBirthDate(new Date(0))
                         .setId(3L)
-                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
+                        .setPassword("password"),
                 new User().setUsername("username4")
                         .setEmail("cis3@temple.edu")
                         .setFirstName("Phi")
                         .setLastName("Truong")
                         .setBirthDate(new Date(0))
                         .setId(4L)
-                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
+                        .setPassword("password"),
                 new User().setUsername("username5")
                         .setEmail("cis4@temple.edu")
                         .setFirstName("Anna")
                         .setLastName("Gillen")
                         .setBirthDate(new Date(0))
                         .setId(5L)
-                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
+                        .setPassword("password"),
                 new User().setUsername("username6")
                         .setEmail("cis5@temple.edu")
                         .setFirstName("Casey")
                         .setLastName("Maloney")
                         .setBirthDate(new Date(0))
                         .setId(6L)
-                        .setPassword("password".getBytes(StandardCharsets.UTF_8))};
+                        .setPassword("password")};
     }
 
 

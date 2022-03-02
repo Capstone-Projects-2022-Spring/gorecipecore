@@ -32,7 +32,7 @@ public class UserDTO {
      */
     private String username;
 
-    private byte[] password;
+    private String password;
 
     /**
      * An email address to allow communication with the user

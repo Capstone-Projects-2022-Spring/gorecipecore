@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 
 public class Passwords {
 
-    public static byte[] hash(String password) throws NoSuchAlgorithmException {
+    public static String hash(String password) throws NoSuchAlgorithmException {
 
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
@@ -16,6 +16,6 @@ public class Passwords {
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         md.update(salt);
 
-        return md.digest(password.getBytes(StandardCharsets.UTF_8));
+        return new String(md.digest(password.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
     }
 }

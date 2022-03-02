@@ -38,7 +38,7 @@ public class User {
      * A salted and hashed string for authentication
      */
     @Column(nullable = false)
-    private byte[] password;
+    private String password;
 
     /**
      * An email address to allow communication with the user

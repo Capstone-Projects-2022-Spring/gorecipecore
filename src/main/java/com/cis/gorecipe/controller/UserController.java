@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
@@ -63,8 +64,6 @@ public class UserController {
     public ResponseEntity<UserDTO> createUser(@RequestBody User user) {
 
         try {
-            user.setId(null);
-            user.setPassword("test");
             user = userRepository.save(user);
             return ResponseEntity.ok().body(UserDTO.mapFromUser(user));
 
@@ -146,7 +145,7 @@ public class UserController {
         });
 
         /* this will need salting and hashing later */
-        if (Arrays.equals(user.getPassword(), Passwords.hash(password))) {
+        if (user.getPassword().equals(Passwords.hash(password))) {
             return ResponseEntity.ok().body(new UserDTO(user));
         } else {
             logger.error("Attempted login with username " + username + " failed due to incorrect password");
