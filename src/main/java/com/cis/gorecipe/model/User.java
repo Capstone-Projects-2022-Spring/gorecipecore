@@ -1,13 +1,13 @@
 package com.cis.gorecipe.model;
 
-import com.cis.gorecipe.util.Passwords;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 import java.util.*;
 
@@ -20,6 +20,8 @@ import java.util.*;
 @Setter
 @Accessors(chain = true)
 public class User {
+
+    private static final Logger logger = LoggerFactory.getLogger(User.class);
 
     /**
      * The primary key of the user
@@ -108,12 +110,12 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
 
-        System.out.println("1 " + id.equals(user.id));
-        System.out.println("2 " + username.equals(user.username));
-        System.out.println("3 " + password.equals(user.password));
-        System.out.println("4 " + email.equals(user.email));
-        System.out.println("5 " + firstName.equals(user.firstName) );
-        System.out.println("6 " + lastName.equals(user.lastName));
+        logger.debug("1 " + id.equals(user.id));
+        logger.debug("2 " + username.equals(user.username));
+        logger.debug("3 " + password.equals(user.password));
+        logger.debug("4 " + email.equals(user.email));
+        logger.debug("5 " + firstName.equals(user.firstName) );
+        logger.debug("6 " + lastName.equals(user.lastName));
 
         return id.equals(user.id) &&
                username.equals(user.username) &&
