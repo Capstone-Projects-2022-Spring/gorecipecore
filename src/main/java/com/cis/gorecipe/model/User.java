@@ -115,12 +115,11 @@ public class User {
                password.equals(user.password) &&
                email.equals(user.email) &&
                firstName.equals(user.firstName) &&
-               lastName.equals(user.lastName);/* &&
-               birthDate.equals(user.birthDate);*/
-
-        /*Objects.equals(favoriteIngredients, user.favoriteIngredients) &&
-               Objects.equals(savedRecipes, user.savedRecipes) &&
-               Objects.equals(dietaryRestrictions, user.dietaryRestrictions);*/
+               lastName.equals(user.lastName) &&
+               birthDate.equals(user.birthDate) &&
+               favoriteIngredients.equals(user.favoriteIngredients) &&
+               savedRecipes.equals(user.savedRecipes) &&
+               dietaryRestrictions.equals(user.dietaryRestrictions);
     }
 
     @Override
