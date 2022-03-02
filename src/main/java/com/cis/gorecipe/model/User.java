@@ -1,11 +1,13 @@
 package com.cis.gorecipe.model;
 
+import com.cis.gorecipe.util.Passwords;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 import java.util.*;
 
@@ -36,7 +38,7 @@ public class User {
      * A salted and hashed string for authentication
      */
     @Column(nullable = false)
-    private String password;
+    private byte[] password;
 
     /**
      * An email address to allow communication with the user

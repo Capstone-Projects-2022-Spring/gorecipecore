@@ -7,6 +7,7 @@ import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
+import com.cis.gorecipe.util.Passwords;
 import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -135,7 +138,7 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseEntity<UserDTO> login(@RequestParam("username") String username,
-                                         @RequestParam("password") String password) {
+                                         @RequestParam("password") String password) throws NoSuchAlgorithmException {
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> {
             logger.error("Attempted login with username " + username + " failed due to bad username");
@@ -143,7 +146,7 @@ public class UserController {
         });
 
         /* this will need salting and hashing later */
-        if (user.getPassword().equals(password)) {
+        if (Arrays.equals(user.getPassword(), Passwords.hash(password))) {
             return ResponseEntity.ok().body(new UserDTO(user));
         } else {
             logger.error("Attempted login with username " + username + " failed due to incorrect password");

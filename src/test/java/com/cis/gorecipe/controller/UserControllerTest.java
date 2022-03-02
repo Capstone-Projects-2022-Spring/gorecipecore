@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -61,49 +62,51 @@ class UserControllerTest {
     @BeforeEach
     public void setup() {
 
-        mockUsers = new User[]{new User().setUsername("username1")
-                .setEmail("yakir@temple.edu")
-                .setFirstName("Yakir")
-                .setLastName("Lebovits")
-                .setBirthDate(new Date(0))
-                .setId(1L)
-                .setPassword("password"),
+        mockUsers = new User[]{
+                new User().setUsername("username1")
+                        .setEmail("yakir@temple.edu")
+                        .setFirstName("Yakir")
+                        .setLastName("Lebovits")
+                        .setBirthDate(new Date(0))
+                        .setId(1L)
+                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
                 new User().setUsername("username2")
                         .setEmail("cis1@temple.edu")
                         .setFirstName("Sean")
                         .setLastName("Williams")
                         .setBirthDate(new Date(0))
                         .setId(2L)
-                        .setPassword("password"),
+                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
                 new User().setUsername("username3")
                         .setEmail("cis2@temple.edu")
                         .setFirstName("Olivia")
                         .setLastName("Felmey")
                         .setBirthDate(new Date(0))
                         .setId(3L)
-                        .setPassword("password"),
+                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
                 new User().setUsername("username4")
                         .setEmail("cis3@temple.edu")
                         .setFirstName("Phi")
                         .setLastName("Truong")
                         .setBirthDate(new Date(0))
                         .setId(4L)
-                        .setPassword("password"),
+                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
                 new User().setUsername("username5")
                         .setEmail("cis4@temple.edu")
                         .setFirstName("Anna")
                         .setLastName("Gillen")
                         .setBirthDate(new Date(0))
                         .setId(5L)
-                        .setPassword("password"),
+                        .setPassword("password".getBytes(StandardCharsets.UTF_8)),
                 new User().setUsername("username6")
                         .setEmail("cis5@temple.edu")
                         .setFirstName("Casey")
                         .setLastName("Maloney")
                         .setBirthDate(new Date(0))
                         .setId(6L)
-                        .setPassword("password")};
+                        .setPassword("password".getBytes(StandardCharsets.UTF_8))};
     }
+
 
     /**
      * Test whether a new user (with complete and valid data) can be created
