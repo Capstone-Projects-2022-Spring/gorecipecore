@@ -110,20 +110,13 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
 
-        logger.debug("1 " + id.equals(user.id));
-        logger.debug("2 " + username.equals(user.username));
-        logger.debug("3 " + password.equals(user.password));
-        logger.debug("4 " + email.equals(user.email));
-        logger.debug("5 " + firstName.equals(user.firstName) );
-        logger.debug("6 " + lastName.equals(user.lastName));
-
         return id.equals(user.id) &&
                username.equals(user.username) &&
                password.equals(user.password) &&
                email.equals(user.email) &&
                firstName.equals(user.firstName) &&
-               lastName.equals(user.lastName) &&
-               birthDate.equals(user.birthDate);
+               lastName.equals(user.lastName);/* &&
+               birthDate.equals(user.birthDate);*/
 
         /*Objects.equals(favoriteIngredients, user.favoriteIngredients) &&
                Objects.equals(savedRecipes, user.savedRecipes) &&
