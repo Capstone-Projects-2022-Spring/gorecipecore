@@ -105,11 +105,15 @@ public class User {
     public boolean equals(Object o) {
 
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) {
-            System.out.println("here!");
-            return false;
-        }
+        if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
+
+        System.out.println("1 " + id.equals(user.id));
+        System.out.println("2 " + username.equals(user.username));
+        System.out.println("3 " + password.equals(user.password));
+        System.out.println("4 " + email.equals(user.email));
+        System.out.println("5 " + firstName.equals(user.firstName) );
+        System.out.println("6 " + lastName.equals(user.lastName));
 
         return id.equals(user.id) &&
                username.equals(user.username) &&
