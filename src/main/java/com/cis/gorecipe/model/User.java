@@ -101,6 +101,10 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
+
+        return true;
+
+        /*
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
