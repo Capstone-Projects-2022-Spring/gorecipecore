@@ -7,7 +7,7 @@ import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
-import com.cis.gorecipe.util.Passwords;
+import com.cis.gorecipe.util.PasswordUtil;
 import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -145,7 +143,7 @@ public class UserController {
         });
 
         /* this will need salting and hashing later */
-        if (user.getPassword().equals(Passwords.hash(password))) {
+        if (user.getPassword().equals(PasswordUtil.hash(password))) {
             return ResponseEntity.ok().body(new UserDTO(user));
         } else {
             logger.error("Attempted login with username " + username + " failed due to incorrect password");

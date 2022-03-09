@@ -16,6 +16,24 @@
     <properties>
         <java.version>11</java.version>
     </properties>
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <name>jcenter</name>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.15.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -58,8 +76,20 @@
             <artifactId>springfox-boot-starter</artifactId>
             <version>3.0.0</version>
         </dependency>
-    </dependencies>
 
+        <!-- Cloud Stuff -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+        </dependency>
+
+        <!-- 3rd Party APIs -->
+        <dependency>
+            <groupId>com.clarifai</groupId>
+            <artifactId>clarifai-grpc</artifactId>
+            <version>8.0.0</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

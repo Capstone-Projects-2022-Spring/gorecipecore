@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-public class Passwords {
+public class PasswordUtil {
 
     public static String hash(String password) throws NoSuchAlgorithmException {
 
