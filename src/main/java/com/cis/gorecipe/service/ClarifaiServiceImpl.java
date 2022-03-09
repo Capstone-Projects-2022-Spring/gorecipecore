@@ -19,7 +19,7 @@ public class ClarifaiServiceImpl implements ClarifaiService {
     public List<Ingredient> processImage(String imageUrl) {
         MultiOutputResponse response = stub.postModelOutputs(
                 PostModelOutputsRequest.newBuilder()
-                        .setModelId("bd367be194cf45149e75f01d59f77ba7")
+                        .setModelId("bd367be194cf45149e75f01d59f77ba7") /* ID of the food recognition model */
                         .addInputs(
                                 Input.newBuilder().setData(
                                         Data.newBuilder().setImage(

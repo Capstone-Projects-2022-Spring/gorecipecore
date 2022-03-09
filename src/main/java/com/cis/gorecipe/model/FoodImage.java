@@ -5,9 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class allows GoRecipe to keep track of all image objects stored in AWS S3 buckets
@@ -34,6 +35,6 @@ public class FoodImage {
     /**
      * The ingredient displayed in the image
      */
-    @ManyToOne
-    private Ingredient imageOf;
+    @OneToMany(fetch = FetchType.EAGER)
+    private Set<Ingredient> imageOf = new HashSet<>();
 }

@@ -1,8 +1,11 @@
 package com.cis.gorecipe.controller;
 
 import com.cis.gorecipe.dto.UserDTO;
+import com.cis.gorecipe.exception.FoodImageNotFoundException;
+import com.cis.gorecipe.exception.UserNotFoundException;
 import com.cis.gorecipe.model.FoodImage;
 import com.cis.gorecipe.model.Ingredient;
+import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.FoodImageRepository;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.UserRepository;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -74,6 +78,12 @@ public class FoodImageController {
     public ResponseEntity<List<Ingredient>> uploadImage(@RequestPart("image") MultipartFile image,
                                                         @PathVariable("userId") Long userId) throws IOException {
 
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Unable to find user " + userId)
+                );
+
         if (!FileUtil.isImage(image))
             return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();
 
@@ -87,24 +97,47 @@ public class FoodImageController {
         ingredients = ingredients.stream().map(ingredientRepository::save)
                 .collect(Collectors.toList());
 
+        FoodImage foodImage = new FoodImage()
+                .setImageOf(new HashSet<>(ingredients))
+                .setS3objectId(fileName)
+                .setUploadedBy(user);
+
+        foodImageRepository.save(foodImage);
+
         return ResponseEntity.status(200).body(ingredients);
     }
 
     /**
-     * @param userDTO a GoRecipe user
+     * @param id the ID of a user
      * @return a list of images uploaded by the specified user
      */
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<FoodImage>> getUserImages(@RequestBody UserDTO userDTO) {
-        return null;
+    public ResponseEntity<List<FoodImage>> getUserImages(@PathVariable("id") Long id) {
+
+        User user = userRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Unable to find user " + id)
+                );
+
+        List<FoodImage> images = foodImageRepository.getFoodImageByUploadedBy(user);
+
+        return ResponseEntity.ok().body(images);
     }
 
     /**
      * @param id the FoodImage/AWS S3 object ID of the image
-     * @return the image specified by the id
+     * @return the URL of the image specified by the id
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Byte[]> getImage(@PathVariable("id") String id) {
-        return null;
+    public String getImage(@PathVariable("id") String id) {
+
+        FoodImage foodImage = foodImageRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new FoodImageNotFoundException(id)
+                );
+
+        return s3Service.getFileUrl(foodImage.getS3objectId());
     }
 }
