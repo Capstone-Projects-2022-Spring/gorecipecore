@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -18,6 +20,8 @@ import java.util.*;
 @Setter
 @Accessors(chain = true)
 public class User {
+
+    private static final Logger logger = LoggerFactory.getLogger(User.class);
 
     /**
      * The primary key of the user
@@ -101,10 +105,21 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(birthDate, user.birthDate) && Objects.equals(favoriteIngredients, user.favoriteIngredients) && Objects.equals(savedRecipes, user.savedRecipes) && Objects.equals(dietaryRestrictions, user.dietaryRestrictions);
+
+        return id.equals(user.id) &&
+               username.equals(user.username) &&
+               password.equals(user.password) &&
+               email.equals(user.email) &&
+               firstName.equals(user.firstName) &&
+               lastName.equals(user.lastName) &&
+               birthDate.equals(user.birthDate) &&
+               favoriteIngredients.equals(user.favoriteIngredients) &&
+               savedRecipes.equals(user.savedRecipes) &&
+               dietaryRestrictions.equals(user.dietaryRestrictions);
     }
 
     @Override
