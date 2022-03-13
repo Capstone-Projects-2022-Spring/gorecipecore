@@ -1,6 +1,5 @@
 package com.cis.gorecipe.controller;
 
-import com.cis.gorecipe.dto.UserDTO;
 import com.cis.gorecipe.exception.FoodImageNotFoundException;
 import com.cis.gorecipe.exception.UserNotFoundException;
 import com.cis.gorecipe.model.FoodImage;
@@ -94,7 +93,8 @@ public class FoodImageController {
 
         List<Ingredient> ingredients = clarifaiService.processImage(image_s3_URI);
 
-        ingredients = ingredients.stream().map(ingredientRepository::save)
+        ingredients = ingredients.stream()
+                .map(ingredientRepository::saveAndFlush)
                 .collect(Collectors.toList());
 
         FoodImage foodImage = new FoodImage()
@@ -102,9 +102,9 @@ public class FoodImageController {
                 .setS3objectId(fileName)
                 .setUploadedBy(user);
 
-        foodImageRepository.save(foodImage);
+        foodImageRepository.saveAndFlush(foodImage);
 
-        return ResponseEntity.status(200).body(ingredients);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ingredients);
     }
 
     /**
