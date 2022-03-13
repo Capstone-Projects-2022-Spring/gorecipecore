@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.websocket.server.PathParam;
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.List;
 /**
  * This class handles the API endpoints related to recipes
  */
+@ApiIgnore
+@CrossOrigin
 @RestController
 @RequestMapping("/api/recipes")
 public class RecipeController {
