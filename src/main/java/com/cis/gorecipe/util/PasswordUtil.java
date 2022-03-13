@@ -9,7 +9,7 @@ public class PasswordUtil {
 
     public static String hash(String password) throws NoSuchAlgorithmException {
 
-        SecureRandom random = new SecureRandom();
+        SecureRandom random = new SecureRandom(new byte[]{1, 2, 3, 4});
         byte[] salt = new byte[16];
         random.nextBytes(salt);
 
