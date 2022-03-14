@@ -6,38 +6,22 @@ import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
 
-import java.nio.charset.StandardCharsets;
-import java.sql.Date;
+import java.util.Date;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureTestDatabase(replace=AutoConfigureTestDatabase.Replace.NONE)
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@TestPropertySource(locations="classpath:test.properties")
 class UserControllerTest extends BaseTest {
 
     private final Logger logger = LoggerFactory.getLogger(UserControllerTest.class);
@@ -63,42 +47,42 @@ class UserControllerTest extends BaseTest {
                         .setEmail("yakir@temple.edu")
                         .setFirstName("Yakir")
                         .setLastName("Lebovits")
-                        .setBirthDate(new Date(0))
+                        .setBirthDate(new Date(946702800000L))
                         .setId(1L)
                         .setPassword("password"),
                 new User().setUsername("username2")
                         .setEmail("cis1@temple.edu")
                         .setFirstName("Sean")
                         .setLastName("Williams")
-                        .setBirthDate(new Date(0))
+                        .setBirthDate(new Date(946702800000L))
                         .setId(2L)
                         .setPassword("password"),
                 new User().setUsername("username3")
                         .setEmail("cis2@temple.edu")
                         .setFirstName("Olivia")
                         .setLastName("Felmey")
-                        .setBirthDate(new Date(0))
+                        .setBirthDate(new Date(946702800000L))
                         .setId(3L)
                         .setPassword("password"),
                 new User().setUsername("username4")
                         .setEmail("cis3@temple.edu")
                         .setFirstName("Phi")
                         .setLastName("Truong")
-                        .setBirthDate(new Date(0))
+                        .setBirthDate(new Date(946702800000L))
                         .setId(4L)
                         .setPassword("password"),
                 new User().setUsername("username5")
                         .setEmail("cis4@temple.edu")
                         .setFirstName("Anna")
                         .setLastName("Gillen")
-                        .setBirthDate(new Date(0))
+                        .setBirthDate(new Date(946702800000L))
                         .setId(5L)
                         .setPassword("password"),
                 new User().setUsername("username6")
                         .setEmail("cis5@temple.edu")
                         .setFirstName("Casey")
                         .setLastName("Maloney")
-                        .setBirthDate(new Date(0))
+                        .setBirthDate(new Date(946702800000L))
                         .setId(6L)
                         .setPassword("password")};
     }
@@ -120,10 +104,9 @@ class UserControllerTest extends BaseTest {
                 .getContentAsString();
 
         User actual = UserDTO.mapToUser(serializer.readValue(result, UserDTO.class));
-        Optional<User> storedUser = userRepository.findById(actual.getId());
-        assertTrue(storedUser.isPresent());
-        logger.info("Test failure: " + storedUser.get().equals(actual));
-        assertEquals(storedUser.get(), actual);
+        User storedUser = userRepository.getById(actual.getId());
+        assertEquals(storedUser, actual);
+        assertEquals(storedUser, actual);
     }
 
     /**
@@ -156,12 +139,12 @@ class UserControllerTest extends BaseTest {
                         .content(serializer.writeValueAsString(mockUsers[0])))
                 .andExpect(status().isOk());
 
+        userRepository.flush();
 
         mockMvc.perform(post("/api/users/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(serializer.writeValueAsString(mockUsers[1])))
                 .andExpect(status().isUnprocessableEntity());
-
     }
 
     /**

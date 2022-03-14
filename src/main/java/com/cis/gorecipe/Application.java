@@ -3,7 +3,6 @@ package com.cis.gorecipe;
 import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.UserRepository;
 import com.cis.gorecipe.util.PasswordUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -55,7 +54,7 @@ public class Application {
                 "REST API for GoRecipe",
                 "1.0.0",
                 null,
-                new Contact("Yaki Lebovits","https://www.cis.temple.edu","yakir@temple.edu"),
+                new Contact("Yaki Lebovits", "https://www.cis.temple.edu", "yakir@temple.edu"),
                 "GPL 2",
                 "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
                 Collections.emptyList()

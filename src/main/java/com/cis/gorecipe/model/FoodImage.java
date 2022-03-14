@@ -28,7 +28,7 @@ public class FoodImage {
     /**
      * The user which uploaded the image to GoRecipe
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private User uploadedBy;
 
     /**

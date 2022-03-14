@@ -5,7 +5,10 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
 import java.io.IOException;
@@ -17,8 +20,8 @@ public class S3ServiceImpl implements S3Service {
     private static final String BUCKET = "gorecipe-foodimage-uploads";
 
     private static final S3Client client = S3Client.builder()
-                                                   .region(Region.of("us-east-2"))
-                                                   .build();
+            .region(Region.of("us-east-2"))
+            .build();
 
     @Override
     public String uploadFile(String fileName, InputStream inputStream, String contentType) throws IOException {

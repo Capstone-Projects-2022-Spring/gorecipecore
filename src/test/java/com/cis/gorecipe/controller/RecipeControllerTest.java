@@ -4,7 +4,6 @@ import com.cis.gorecipe.BaseTest;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -33,41 +32,48 @@ class RecipeControllerTest extends BaseTest {
      * Test whether a valid recipe can be added
      */
     @Test
-    public void testAddRecipe() {}
+    public void testAddRecipe() {
+    }
 
     /**
      * Test whether a recipe that exists can be deleted
      */
     @Test
-    public void testDeleteRecipe() {}
+    public void testDeleteRecipe() {
+    }
 
     /**
      * Test whether the API will reject an attempt to delete a recipe that doesn't exist
      */
     @Test
-    public void testDeleteRecipeDoesntExist() {}
+    public void testDeleteRecipeDoesntExist() {
+    }
 
     /**
      * Test whether a recipe can be retrieved via its ID
      */
     @Test
-    public void testGetRecipe() {}
+    public void testGetRecipe() {
+    }
 
     /**
      * Test whether the API will reject an attempt to get a recipe using an invalid ID
      */
     @Test
-    public void testGetRecipeDoesntExist() {}
+    public void testGetRecipeDoesntExist() {
+    }
 
     /**
      * Test whether a list of all recipes can be retrieved
      */
     @Test
-    public void testGetAllRecipes() {}
+    public void testGetAllRecipes() {
+    }
 
     /**
      * Test whether a subset of recipes can be returned based on a search query
      */
     @Test
-    public void testSearchRecipes() {}
+    public void testSearchRecipes() {
+    }
 }

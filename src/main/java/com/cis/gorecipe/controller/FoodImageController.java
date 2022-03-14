@@ -69,12 +69,12 @@ public class FoodImageController {
     }
 
     /**
-     * @param image   a JPEG image
-     * @param userId  the ID of the user who uploaded the image
+     * @param image  a JPEG image
+     * @param userId the ID of the user who uploaded the image
      * @return the ingredient that GoRecipe has determined to be in the image
      */
     @PostMapping(path = "/upload/{userId}",
-                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<Ingredient>> uploadImage(@RequestPart("image") MultipartFile image,
                                                         @PathVariable("userId") Long userId) throws IOException {
 
