@@ -1,5 +1,6 @@
 package com.cis.gorecipe.controller;
 
+import com.cis.gorecipe.BaseTest;
 import com.cis.gorecipe.dto.UserDTO;
 import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
@@ -37,11 +38,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @TestPropertySource(locations="classpath:test.properties")
-class UserControllerTest {
+class UserControllerTest extends BaseTest {
 
     private final Logger logger = LoggerFactory.getLogger(UserControllerTest.class);
-
-    private final ObjectMapper serializer = new ObjectMapper();
 
     @Autowired
     UserController controller;
@@ -55,19 +54,10 @@ class UserControllerTest {
     @Autowired
     RecipeRepository recipeRepository;
 
-    @Autowired
-    private MockMvc mockMvc;
-
     private User[] mockUsers;
-
-    public UserControllerTest() {
-        serializer.registerModule(new JavaTimeModule());
-        serializer.setTimeZone(TimeZone.getTimeZone("EST"));
-    }
 
     @BeforeEach
     public void setup() {
-
         mockUsers = new User[]{
                 new User().setUsername("username1")
                         .setEmail("yakir@temple.edu")

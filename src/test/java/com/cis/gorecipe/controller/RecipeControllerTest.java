@@ -1,5 +1,6 @@
 package com.cis.gorecipe.controller;
 
+import com.cis.gorecipe.BaseTest;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
@@ -9,18 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
 
-@DataJpaTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@TestPropertySource(locations="classpath:test.properties")
-class RecipeControllerTest {
+@Disabled
+class RecipeControllerTest extends BaseTest {
 
 
     private final Logger logger = LoggerFactory.getLogger(RecipeControllerTest.class);
@@ -36,11 +28,6 @@ class RecipeControllerTest {
 
     @Autowired
     RecipeRepository recipeRepository;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    private final ObjectMapper serializer = new ObjectMapper();
 
     /**
      * Test whether a valid recipe can be added
