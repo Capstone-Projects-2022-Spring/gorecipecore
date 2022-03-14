@@ -14,7 +14,7 @@
     <name>gorecipe-core</name>
     <description>gorecipe-core</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>16</java.version>
         <spring-boot.run.jvmArguments>-Duser.timezone=EST</spring-boot.run.jvmArguments>
     </properties>
     <repositories>
