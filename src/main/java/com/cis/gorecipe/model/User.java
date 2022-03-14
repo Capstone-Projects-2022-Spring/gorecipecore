@@ -8,8 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
-import java.sql.Date;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
+import static javax.persistence.TemporalType.DATE;
 
 /**
  * This class allows GoRecipe to store user information, including login information and personal preferences (such as favorite ingredients, favorite recipes, etc.)
@@ -64,7 +67,8 @@ public class User {
      * The user's birthday
      */
     @Column(nullable = false)
-    private Date birthDate;
+    @Temporal(DATE)
+    private java.util.Date birthDate;
 
     /**
      * A list of ingredients which the user would like to cook with
@@ -107,19 +111,21 @@ public class User {
     public boolean equals(Object o) {
 
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof User)) return false;
+
         User user = (User) o;
 
-        return id.equals(user.id) &&
-               username.equals(user.username) &&
-               password.equals(user.password) &&
-               email.equals(user.email) &&
-               firstName.equals(user.firstName) &&
-               lastName.equals(user.lastName) &&
-               birthDate.equals(user.birthDate) &&
-               favoriteIngredients.equals(user.favoriteIngredients) &&
-               savedRecipes.equals(user.savedRecipes) &&
-               dietaryRestrictions.equals(user.dietaryRestrictions);
+        /* call getters rather than fields so the method works with hibernate proxy classes during unit tests */
+        return this.getId().equals(user.getId()) &&
+                this.getUsername().equals(user.getUsername()) &&
+                this.getPassword().equals(user.getPassword()) &&
+                this.getEmail().equals(user.getEmail()) &&
+                this.getFirstName().equals(user.getFirstName()) &&
+                this.getLastName().equals(user.getLastName()) &&
+                this.getBirthDate().equals(user.getBirthDate()) &&
+                this.getDietaryRestrictions().equals(user.getDietaryRestrictions()) &&
+                this.getSavedRecipes().equals(user.getSavedRecipes()) &&
+                this.getFavoriteIngredients().equals(user.getFavoriteIngredients());
     }
 
     @Override

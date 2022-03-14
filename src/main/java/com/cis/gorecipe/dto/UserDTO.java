@@ -8,8 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -52,7 +50,7 @@ public class UserDTO {
     /**
      * The user's birthday
      */
-    private Date birthDate;
+    private java.util.Date birthDate;
 
     /**
      * A list of ingredients which the user would like to cook with

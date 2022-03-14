@@ -7,7 +7,7 @@ import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
-import com.cis.gorecipe.util.Passwords;
+import com.cis.gorecipe.util.PasswordUtil;
 import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,15 +15,15 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * This class handles the API endpoints related to user account management
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -145,7 +145,7 @@ public class UserController {
         });
 
         /* this will need salting and hashing later */
-        if (user.getPassword().equals(Passwords.hash(password))) {
+        if (user.getPassword().equals(PasswordUtil.hash(password))) {
             return ResponseEntity.ok().body(new UserDTO(user));
         } else {
             logger.error("Attempted login with username " + username + " failed due to incorrect password");
@@ -157,6 +157,7 @@ public class UserController {
      * @param userId the id of the user who's saved recipes are being requested
      * @return a list of recipes that the specified user saved
      */
+    @ApiIgnore
     @GetMapping("/{userId}/recipes")
     public ResponseEntity<List<Recipe>> getSavedRecipes(@PathVariable Long userId) {
         return null;
@@ -167,6 +168,7 @@ public class UserController {
      * @param recipeId the id of the recipe which the user is attempting to save
      * @return an HTTP response that confirms if the recipe has been saved to the user's account
      */
+    @ApiIgnore
     @PostMapping("/{userId}/recipes/{recipeId}")
     public ResponseEntity<Void> saveRecipeToAccount(@PathVariable Long userId, @PathVariable Long recipeId) {
         return null;
@@ -177,6 +179,7 @@ public class UserController {
      * @param recipeId the id of the recipe which the user is attempting to remove from their account
      * @return an HTTP response that confirms if the recipe has been unsaved to the user's account
      */
+    @ApiIgnore
     @DeleteMapping("/{userId}/recipes/{recipeId}")
     public ResponseEntity<Void> unsaveRecipeFromAccount(@PathVariable Long userId, @PathVariable Long recipeId) {
         return null;
@@ -187,6 +190,7 @@ public class UserController {
      * @param dietaryRestrictionId the id of the dietary restriction that the user is attempting to add to their account
      * @return an HTTP response that confirms if the dietary restriction has been added to the user's account
      */
+    @ApiIgnore
     @PostMapping("/{userId}/dietary-restrictions/{dietaryRestrictionId}")
     public ResponseEntity<Void> addDietaryRestrictionToAccount(@PathVariable Long userId,
                                                                @PathVariable Long dietaryRestrictionId) {
@@ -198,6 +202,7 @@ public class UserController {
      * @param dietaryRestrictionId the id of the dietary restriction that the user is attempting to remove from their account
      * @return an HTTP response that confirms if the dietary restriction has been removed from the user's account
      */
+    @ApiIgnore
     @DeleteMapping("/{userId}/dietary-restrictions/{dietaryRestrictionId}")
     public ResponseEntity<Void> removeDietaryRestrictionToAccount(@PathVariable Long userId,
                                                                   @PathVariable Long dietaryRestrictionId) {

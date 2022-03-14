@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 /**
@@ -21,15 +19,8 @@ import javax.persistence.Id;
 public class Ingredient {
 
     /**
-     * The primary key of the ingredient
-     */
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    /**
      * A unique ingredient name (e.g. rice or salmon)
      */
-    @Column(unique = true)
+    @Id
     private String name;
 }
