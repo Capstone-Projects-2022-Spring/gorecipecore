@@ -7,17 +7,16 @@ import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
-import com.cis.gorecipe.util.PasswordUtil;
 import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -49,6 +48,8 @@ public class UserController {
      */
     private final IngredientRepository ingredientRepository;
 
+    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
     public UserController(UserRepository userRepository, RecipeRepository recipeRepository,
                           IngredientRepository ingredientRepository) {
         this.userRepository = userRepository;
@@ -65,6 +66,9 @@ public class UserController {
 
         try {
             user = userRepository.save(user);
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            user = userRepository.save(user);
+
             return ResponseEntity.ok().body(UserDTO.mapFromUser(user));
 
             /* if the posted data is missing values that are required
@@ -107,7 +111,7 @@ public class UserController {
                 user.setUsername(userDTO.getUsername());
 
             if (userDTO.getPassword() != null)
-                user.setPassword(PasswordUtil.hash(userDTO.getPassword()));
+                user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
 
             if (userDTO.getEmail() != null)
                 user.setEmail(userDTO.getEmail());
@@ -153,19 +157,18 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseEntity<UserDTO> login(@RequestParam("username") String username,
-                                         @RequestParam("password") String password) throws NoSuchAlgorithmException {
+                                         @RequestParam("password") String password) {
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> {
             logger.error("Attempted login with username " + username + " failed due to bad username");
             return new UserNotFoundException(username);
         });
 
-        /* this will need salting and hashing later */
-        if (user.getPassword().equals(PasswordUtil.hash(password))) {
+        if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
             return ResponseEntity.ok().body(new UserDTO(user));
         } else {
             logger.error("Attempted login with username " + username + " failed due to incorrect password");
-            return ResponseEntity.status(401).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 
