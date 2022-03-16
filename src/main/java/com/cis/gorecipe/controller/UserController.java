@@ -93,7 +93,7 @@ public class UserController {
      * @param userDTO the data which should be used to update an existing user
      * @return a DTO representing the newly modified user
      */
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
 
         try {
@@ -101,7 +101,23 @@ public class UserController {
             if (!userRepository.existsById(id))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-            User user = UserDTO.mapToUser(userDTO);
+            User user = userRepository.getById(id);
+
+            if (userDTO.getUsername() != null)
+                user.setUsername(userDTO.getUsername());
+
+            if (userDTO.getPassword() != null)
+                user.setPassword(PasswordUtil.hash(userDTO.getPassword()));
+
+            if (userDTO.getEmail() != null)
+                user.setEmail(userDTO.getEmail());
+
+            if (userDTO.getFirstName() != null)
+                user.setFirstName(userDTO.getFirstName());
+
+            if (userDTO.getBirthDate() != null)
+                user.setBirthDate(userDTO.getBirthDate());
+
             user = userRepository.save(user);
 
             return ResponseEntity.ok().body(new UserDTO(user));
