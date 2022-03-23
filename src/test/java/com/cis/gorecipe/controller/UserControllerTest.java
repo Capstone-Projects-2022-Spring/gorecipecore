@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Date;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -38,6 +38,8 @@ class UserControllerTest extends BaseTest {
     @Autowired
     RecipeRepository recipeRepository;
 
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     private User[] mockUsers;
 
     @BeforeEach
@@ -49,14 +51,14 @@ class UserControllerTest extends BaseTest {
                         .setLastName("Lebovits")
                         .setBirthDate(new Date(946702800000L))
                         .setId(1L)
-                        .setPassword("password"),
+                        .setPassword(encoder.encode("password")),
                 new User().setUsername("username2")
                         .setEmail("cis1@temple.edu")
                         .setFirstName("Sean")
                         .setLastName("Williams")
                         .setBirthDate(new Date(946702800000L))
                         .setId(2L)
-                        .setPassword("password"),
+                        .setPassword(encoder.encode("password")),
                 new User().setUsername("username3")
                         .setEmail("cis2@temple.edu")
                         .setFirstName("Olivia")
@@ -64,27 +66,27 @@ class UserControllerTest extends BaseTest {
                         .setBirthDate(new Date(946702800000L))
                         .setId(3L)
                         .setPassword("password"),
-                new User().setUsername("username4")
+                new User().setUsername(encoder.encode("password"))
                         .setEmail("cis3@temple.edu")
                         .setFirstName("Phi")
                         .setLastName("Truong")
                         .setBirthDate(new Date(946702800000L))
                         .setId(4L)
-                        .setPassword("password"),
+                        .setPassword(encoder.encode("password")),
                 new User().setUsername("username5")
                         .setEmail("cis4@temple.edu")
                         .setFirstName("Anna")
                         .setLastName("Gillen")
                         .setBirthDate(new Date(946702800000L))
                         .setId(5L)
-                        .setPassword("password"),
+                        .setPassword(encoder.encode("password")),
                 new User().setUsername("username6")
                         .setEmail("cis5@temple.edu")
                         .setFirstName("Casey")
                         .setLastName("Maloney")
                         .setBirthDate(new Date(946702800000L))
                         .setId(6L)
-                        .setPassword("password")};
+                        .setPassword(encoder.encode("password"))};
     }
 
 
@@ -179,87 +181,123 @@ class UserControllerTest extends BaseTest {
     @DirtiesContext
     public void testUpdateUser() throws Exception {
 
-        User user = userRepository.save(mockUsers[0]);
+        userRepository.save(mockUsers[0]);
 
-        mockUsers[0].setFirstName("Updated");
-        mockUsers[0].setEmail("updated@email.com");
+        User user = new User()
+                .setUsername("Updated!")
+                .setEmail("updated@email.com");
 
-        String result = mockMvc.perform(put("/api/users/" + user.getId())
+        String result = mockMvc.perform(patch("/api/users/" + mockUsers[0].getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(serializer.writeValueAsString(mockUsers[0])))
+                        .content(serializer.writeValueAsString(user)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
         User actual = UserDTO.mapToUser(serializer.readValue(result, UserDTO.class));
-        Optional<User> storedUser = userRepository.findById(actual.getId());
-        assertTrue(storedUser.isPresent());
-        assertEquals(storedUser.get(), actual);
+        User expected = mockUsers[0]
+                .setUsername("Updated!")
+                .setEmail("updated@email.com");
+
+        assertEquals(actual, expected);
     }
 
     /**
      * Test whether the API will reject an attempt to update a user that does not exist
      */
-    @Disabled
     @Test
     @DirtiesContext
     public void testUpdateUserDoesNotExist() throws Exception {
 
-        mockMvc.perform(put("/api/users/123456789")
+        User user = new User()
+                .setUsername("Updated!")
+                .setEmail("updated@email.com");
+
+        mockMvc.perform(patch("/api/users/123456789")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(serializer.writeValueAsString(mockUsers[0])))
+                        .content(serializer.writeValueAsString(user)))
                 .andExpect(status().isNotFound());
     }
 
     /**
      * Test whether the data of user that exists can be retrieved
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testGetUser() {
-        fail("Not yet implemented");
+    public void testGetUser() throws Exception {
+
+        User expected = userRepository.save(mockUsers[4]);
+
+        String result = mockMvc.perform(get("/api/users/" + expected.getId()))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        User actual = serializer.readValue(result, User.class);
+
+        assertEquals(expected, actual);
     }
 
     /**
      * Test whether the API will reject an attempt to retrieve the data of a user that does not exist
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testGetUserDoesNotExist() {
-        fail("Not yet implemented");
+    public void testGetUserDoesNotExist() throws Exception {
+
+        mockMvc.perform(get("/api/users/123456789"))
+                .andExpect(status().isNotFound());
     }
 
     /**
      * Test whether the API will return a user's data when they have successfully logged in
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testLoginSuccess() {
-        fail("Not yet implemented");
+    public void testLoginSuccess() throws Exception {
+
+        User user = userRepository.save(mockUsers[4]);
+
+        String result = mockMvc.perform(post("/api/users/login")
+                .param("username", "username5")
+                .param("password", "password"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        User actual = serializer.readValue(result, User.class);
+        assertEquals(user, actual);
     }
 
     /**
      * Test whether the API will reject an attempt to log in with an incorrect password
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testLoginFailure() {
-        fail("Not yet implemented");
+    public void testLoginFailure() throws Exception {
+
+        userRepository.save(mockUsers[4]);
+
+        mockMvc.perform(post("/api/users/login")
+                        .param("username", "username5")
+                        .param("password", "fake password"))
+                .andExpect(status().isUnauthorized());
     }
 
     /**
      * Test whether the API will reject an attempt to log in with a username that does not belong to any account
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testLoginWithUserDoesNotExist() {
-        fail("Not yet implemented");
+    public void testLoginWithUserDoesNotExist() throws Exception {
+
+        mockMvc.perform(post("/api/users/login")
+                        .param("username", "not an account")
+                        .param("password", "fake password"))
+                .andExpect(status().isNotFound());
     }
 
     /**

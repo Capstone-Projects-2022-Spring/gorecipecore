@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -59,6 +60,8 @@ public class UserController {
      */
     private final IngredientRepository ingredientRepository;
 
+    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
     private final RecipeCalendarItemRepository calendarRepository;
 
     private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -81,6 +84,9 @@ public class UserController {
 
         try {
             user = userRepository.save(user);
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            user = userRepository.save(user);
+
             return ResponseEntity.ok().body(UserDTO.mapFromUser(user));
 
             /* if the posted data is missing values that are required
@@ -110,7 +116,7 @@ public class UserController {
      * @param userDTO the data which should be used to update an existing user
      * @return a DTO representing the newly modified user
      */
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @ApiOperation(value = "Update an existing user by providing 1 or more new field values")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
 
@@ -119,7 +125,23 @@ public class UserController {
             if (!userRepository.existsById(id))
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-            User user = UserDTO.mapToUser(userDTO);
+            User user = userRepository.getById(id);
+
+            if (userDTO.getUsername() != null)
+                user.setUsername(userDTO.getUsername());
+
+            if (userDTO.getPassword() != null)
+                user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
+
+            if (userDTO.getEmail() != null)
+                user.setEmail(userDTO.getEmail());
+
+            if (userDTO.getFirstName() != null)
+                user.setFirstName(userDTO.getFirstName());
+
+            if (userDTO.getBirthDate() != null)
+                user.setBirthDate(userDTO.getBirthDate());
+
             user = userRepository.save(user);
 
             return ResponseEntity.ok().body(new UserDTO(user));
@@ -164,12 +186,11 @@ public class UserController {
             return new UserNotFoundException(username);
         });
 
-        /* this will need salting and hashing later */
-        if (user.getPassword().equals(PasswordUtil.hash(password))) {
+        if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
             return ResponseEntity.ok().body(new UserDTO(user));
         } else {
-            logger.warn("Attempted login with username " + username + " failed due to incorrect password");
-            return ResponseEntity.status(401).body(null);
+            logger.error("Attempted login with username " + username + " failed due to incorrect password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 
