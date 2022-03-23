@@ -3,10 +3,16 @@ package com.cis.gorecipe.controller;
 import com.cis.gorecipe.dto.UserDTO;
 import com.cis.gorecipe.exception.UserNotFoundException;
 import com.cis.gorecipe.model.Recipe;
+import com.cis.gorecipe.model.RecipeCalendarItem;
 import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
+import com.cis.gorecipe.repository.RecipeCalendarItemRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
+import com.cis.gorecipe.util.PasswordUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +23,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.annotation.security.RolesAllowed;
+import java.net.URI;
+import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This class handles the API endpoints related to user account management
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -50,11 +62,16 @@ public class UserController {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
+    private final RecipeCalendarItemRepository calendarRepository;
+
+    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+
     public UserController(UserRepository userRepository, RecipeRepository recipeRepository,
-                          IngredientRepository ingredientRepository) {
+                          IngredientRepository ingredientRepository, RecipeCalendarItemRepository calendarRepository) {
         this.userRepository = userRepository;
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
+        this.calendarRepository = calendarRepository;
     }
 
     /**
@@ -62,6 +79,7 @@ public class UserController {
      * @return a DTO representing the newly created user
      */
     @PostMapping("/")
+    @ApiOperation(value = "Create a new user")
     public ResponseEntity<UserDTO> createUser(@RequestBody User user) {
 
         try {
@@ -84,6 +102,7 @@ public class UserController {
      * @return an HTTP response confirming if the user has been removed from the system
      */
     @DeleteMapping("/{id}")
+    @ApiOperation(value = "Delete an existing user")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 
         if (!userRepository.existsById(id))
@@ -98,6 +117,7 @@ public class UserController {
      * @return a DTO representing the newly modified user
      */
     @PatchMapping("/{id}")
+    @ApiOperation(value = "Update an existing user by providing 1 or more new field values")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
 
         try {
@@ -139,6 +159,7 @@ public class UserController {
      * @return a DTO representing the requested user
      */
     @GetMapping("/{id}")
+    @ApiOperation(value = "Fetch a user's information based on their ID")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
 
         User user = userRepository
@@ -156,6 +177,7 @@ public class UserController {
      * @return an HTTP response that contains a DTO of the specified user if the login was successful and an error message if it failed
      */
     @PostMapping("/login")
+    @ApiOperation(value = "Log in to a user's account (returns the user's information on success)")
     public ResponseEntity<UserDTO> login(@RequestParam("username") String username,
                                          @RequestParam("password") String password) {
 
@@ -170,6 +192,65 @@ public class UserController {
             logger.error("Attempted login with username " + username + " failed due to incorrect password");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
+    }
+
+    /**
+     *
+     * @param dateAsString the date on which the user wants to cook a recipe
+     * @param userId the user who wants to cook the recipe
+     * @param recipeId the recipe which the user wants to cook
+     * @return an HTTP status indicating if the item was saved or not
+     */
+    @PostMapping("/{userId}/calendar/{recipeId}")
+    @ApiOperation(value = "Add recipe to user's calendar", notes = "The date is formatted as yyyy-MM-dd, but the " +
+                          "backend parameter had to be a String because of parsing issues.")
+    public ResponseEntity<Void> addRecipeToUsersCalendar(@RequestBody @JsonProperty("date") String dateAsString,
+                                                         @PathVariable Long userId,
+                                                         @PathVariable Long recipeId) {
+
+        if (! (userRepository.existsById(userId) && recipeRepository.existsById(recipeId)) )
+            return ResponseEntity.notFound().build();
+
+        try {
+            Date date = formatter.parse(dateAsString);
+
+            RecipeCalendarItem item = new RecipeCalendarItem()
+                    .setRecipe(recipeRepository.getById(recipeId))
+                    .setUser(userRepository.getById(userId))
+                    .setDate(date);
+
+            calendarRepository.save(item);
+
+            return ResponseEntity.noContent().build();
+        } catch (ParseException | DataIntegrityViolationException | PropertyValueException e) {
+            logger.warn("Failed to add recipe to user's calendar: " + e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/calendar/{id}")
+    @ApiOperation(value = "Remove a recipe from a user's calendar")
+    public ResponseEntity<Void> deleteRecipeFromDate(@PathVariable Long id) {
+
+        try {
+            calendarRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{userId}/calendar")
+    @ApiOperation(value = "Fetch a list of all recipes that have been saved to a user's calendar")
+    public ResponseEntity<List<RecipeCalendarItem>> getUsersCalendar(@PathVariable Long userId) {
+
+        if (!userRepository.existsById(userId))
+            return ResponseEntity.notFound().build();
+
+        List<RecipeCalendarItem> items = calendarRepository
+                .getRecipeCalendarItemByUser(userRepository.getById(userId));
+
+        return ResponseEntity.ok(items);
     }
 
     /**
