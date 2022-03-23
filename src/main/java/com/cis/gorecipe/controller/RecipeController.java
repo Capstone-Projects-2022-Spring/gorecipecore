@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 /**
  * This class handles the API endpoints related to recipes
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/api/recipes")
 public class RecipeController {

@@ -20,16 +20,13 @@ public class RecipeCalendarItem {
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false)
     @ManyToOne
     private User user;
 
-    @Column(nullable = false)
     @ManyToOne
     private Recipe recipe;
 
-
     @Column(nullable = false)
     @Temporal(DATE)
-    private java.util.Date birthDate;
+    private java.util.Date date;
 }

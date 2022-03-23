@@ -1,6 +1,8 @@
 package com.cis.gorecipe;
 
+import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.model.User;
+import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
 import com.cis.gorecipe.util.PasswordUtil;
 import org.springframework.boot.CommandLineRunner;
@@ -24,14 +26,17 @@ import java.util.Collections;
 /**
  * The entry point of the REST application
  */
-@SpringBootApplication
 @EnableSwagger2
+@SpringBootApplication
 public class Application {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
 
-    public Application(UserRepository repository) {
-        this.repository = repository;
+    private final RecipeRepository recipeRepository;
+
+    public Application(UserRepository repository, RecipeRepository recipeRepository) {
+        this.userRepository = repository;
+        this.recipeRepository = recipeRepository;
     }
 
     public static void main(String[] args) {
@@ -61,11 +66,15 @@ public class Application {
         );
     }
 
+    /**
+     * persist some mock data on startup
+     */
     @Profile("!test")
     @Bean
     public CommandLineRunner createMockUsers() {
         return (args) -> {
-            repository.deleteAll();
+            userRepository.deleteAll();
+            recipeRepository.deleteAll();
 
             User[] mockUsers = new User[]{
                     new User().setUsername("username1")
@@ -111,7 +120,13 @@ public class Application {
                             .setId(6L)
                             .setPassword(PasswordUtil.hash("password"))};
 
-            repository.saveAll(Arrays.asList(mockUsers));
+            userRepository.saveAll(Arrays.asList(mockUsers));
+
+            long l = 1L;
+            for (String s : new String[]{"Super Duper Pasta", "Bowling for Soup", "Another Recipe Name"}) {
+                Recipe r = new Recipe().setName(s).setId(l++);
+                recipeRepository.save(r);
+            }
         };
     }
 }
