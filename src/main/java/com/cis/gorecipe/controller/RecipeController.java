@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -138,7 +139,7 @@ public class RecipeController {
                     .findAllById(
                               Stream.of(restrictions.split(","))
                                     .map(Long::valueOf)
-                                    .toList()
+                                    .collect(Collectors.toList())
                     );
 
         List<DietaryRestriction> finalRestrictionList = restrictionList;
@@ -165,7 +166,7 @@ public class RecipeController {
                 })
                 .filter(recipe -> (recipe.getContent().matches(finalQuery) ||
                                    recipe.getName().matches(finalQuery)))
-                .toList();
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok().body(recipes);
     }

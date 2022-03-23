@@ -3,8 +3,10 @@ package com.cis.gorecipe.controller;
 import com.cis.gorecipe.dto.UserDTO;
 import com.cis.gorecipe.exception.UserNotFoundException;
 import com.cis.gorecipe.model.Recipe;
+import com.cis.gorecipe.model.RecipeCalendarItem;
 import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.IngredientRepository;
+import com.cis.gorecipe.repository.RecipeCalendarItemRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
 import com.cis.gorecipe.util.PasswordUtil;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -49,11 +52,14 @@ public class UserController {
      */
     private final IngredientRepository ingredientRepository;
 
+    private final RecipeCalendarItemRepository calendarRepository;
+
     public UserController(UserRepository userRepository, RecipeRepository recipeRepository,
-                          IngredientRepository ingredientRepository) {
+                          IngredientRepository ingredientRepository, RecipeCalendarItemRepository calendarRepository) {
         this.userRepository = userRepository;
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
+        this.calendarRepository = calendarRepository;
     }
 
     /**
@@ -151,6 +157,45 @@ public class UserController {
             logger.error("Attempted login with username " + username + " failed due to incorrect password");
             return ResponseEntity.status(401).body(null);
         }
+    }
+
+    /**
+     *
+     * @param item a RecipeCalendarItem to be saved
+     * @return an HTTP status indicating if the item was saved or not
+     */
+    @PostMapping("/calendar")
+    public ResponseEntity<Void> addRecipeToDate(@RequestBody RecipeCalendarItem item) {
+
+        try {
+            calendarRepository.save(item);
+            return ResponseEntity.noContent().build();
+        } catch (DataIntegrityViolationException | PropertyValueException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/calendar/{id}")
+    public ResponseEntity<Void> deleteRecipeFromDate(@PathVariable Long id) {
+
+        try {
+            calendarRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{userId}/calendar")
+    public ResponseEntity<List<RecipeCalendarItem>> getUsersCalendar(@PathVariable Long userId) {
+
+        if (!userRepository.existsById(userId))
+            return ResponseEntity.notFound().build();
+
+        List<RecipeCalendarItem> items = calendarRepository
+                .getRecipeCalendarItemByUser(userRepository.getById(userId));
+
+        return ResponseEntity.ok(items);
     }
 
     /**
