@@ -7,12 +7,12 @@ import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.FoodImageRepository;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.UserRepository;
-import com.cis.gorecipe.util.PasswordUtil;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Arrays;
@@ -44,6 +44,8 @@ class FoodImageControllerTest extends BaseTest {
     @Autowired
     FoodImageController foodImageController;
 
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     /**
      * Test whether a JPG image can be uploaded and will return a list of ingredients
      */
@@ -57,7 +59,7 @@ class FoodImageControllerTest extends BaseTest {
                 .setLastName("Lebovits")
                 .setBirthDate(new Date(946702800000L))
                 .setId(1L)
-                .setPassword(PasswordUtil.hash("password"));
+                .setPassword(encoder.encode("password"));
 
         userRepository.saveAndFlush(mockUser);
 
@@ -109,7 +111,7 @@ class FoodImageControllerTest extends BaseTest {
                 .setLastName("Lebovits")
                 .setBirthDate(new Date(0))
                 .setId(1L)
-                .setPassword(PasswordUtil.hash("password"));
+                .setPassword(encoder.encode("password"));
 
         userRepository.saveAndFlush(mockUser);
 
@@ -137,7 +139,7 @@ class FoodImageControllerTest extends BaseTest {
                 .setLastName("Lebovits")
                 .setBirthDate(new Date(946702800000L))
                 .setId(1L)
-                .setPassword(PasswordUtil.hash("password"));
+                .setPassword(encoder.encode("password"));
 
         mockUser = userRepository.save(mockUser);
 
@@ -194,7 +196,7 @@ class FoodImageControllerTest extends BaseTest {
                 .setLastName("Lebovits")
                 .setBirthDate(new Date(946702800000L))
                 .setId(1L)
-                .setPassword(PasswordUtil.hash("password"));
+                .setPassword(encoder.encode("password"));
 
         userRepository.saveAndFlush(mockUser);
 

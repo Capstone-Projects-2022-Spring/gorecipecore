@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
  * This class handles the API endpoints related to uploading images of ingredients and the processing of
  * those images
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/api/images")
 public class FoodImageController {

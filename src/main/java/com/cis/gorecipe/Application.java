@@ -1,13 +1,14 @@
 package com.cis.gorecipe;
 
 import com.cis.gorecipe.model.User;
+import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
-import com.cis.gorecipe.util.PasswordUtil;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -24,14 +25,14 @@ import java.util.Collections;
 /**
  * The entry point of the REST application
  */
-@SpringBootApplication
 @EnableSwagger2
+@SpringBootApplication
 public class Application {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
 
     public Application(UserRepository repository) {
-        this.repository = repository;
+        this.userRepository = repository;
     }
 
     public static void main(String[] args) {
@@ -61,11 +62,16 @@ public class Application {
         );
     }
 
+    /**
+     * persist some mock data on startup
+     */
     @Profile("!test")
     @Bean
     public CommandLineRunner createMockUsers() {
         return (args) -> {
-            repository.deleteAll();
+            userRepository.deleteAll();
+
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
             User[] mockUsers = new User[]{
                     new User().setUsername("username1")
@@ -74,44 +80,44 @@ public class Application {
                             .setLastName("Lebovits")
                             .setBirthDate(new Date(0))
                             .setId(1L)
-                            .setPassword(PasswordUtil.hash("password")),
+                            .setPassword(encoder.encode("password")),
                     new User().setUsername("username2")
                             .setEmail("cis1@temple.edu")
                             .setFirstName("Sean")
                             .setLastName("Williams")
                             .setBirthDate(new Date(0))
                             .setId(2L)
-                            .setPassword(PasswordUtil.hash("password")),
+                            .setPassword(encoder.encode("password")),
                     new User().setUsername("username3")
                             .setEmail("cis2@temple.edu")
                             .setFirstName("Olivia")
                             .setLastName("Felmey")
                             .setBirthDate(new Date(0))
                             .setId(3L)
-                            .setPassword(PasswordUtil.hash("password")),
+                            .setPassword(encoder.encode("password")),
                     new User().setUsername("username4")
                             .setEmail("cis3@temple.edu")
                             .setFirstName("Phi")
                             .setLastName("Truong")
                             .setBirthDate(new Date(0))
                             .setId(4L)
-                            .setPassword(PasswordUtil.hash("password")),
+                            .setPassword(encoder.encode("password")),
                     new User().setUsername("username5")
                             .setEmail("cis4@temple.edu")
                             .setFirstName("Anna")
                             .setLastName("Gillen")
                             .setBirthDate(new Date(0))
                             .setId(5L)
-                            .setPassword(PasswordUtil.hash("password")),
+                            .setPassword(encoder.encode("password")),
                     new User().setUsername("username6")
                             .setEmail("cis5@temple.edu")
                             .setFirstName("Casey")
                             .setLastName("Maloney")
                             .setBirthDate(new Date(0))
                             .setId(6L)
-                            .setPassword(PasswordUtil.hash("password"))};
+                            .setPassword(encoder.encode("password"))};
 
-            repository.saveAll(Arrays.asList(mockUsers));
+            userRepository.saveAll(Arrays.asList(mockUsers));
         };
     }
 }

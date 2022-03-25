@@ -73,21 +73,21 @@ public class User {
     /**
      * A list of ingredients which the user would like to cook with
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @Column(nullable = false)
     private Set<Ingredient> favoriteIngredients = new HashSet<>();
 
     /**
      * A list of recipes which the user would like to revisit in the future
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @Column(nullable = false)
     private Set<Recipe> savedRecipes = new HashSet<>();
 
     /**
      * A list of restrictions on which recipes the user can cook
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @Column(nullable = false)
     private Set<DietaryRestriction> dietaryRestrictions = new HashSet<>();
 
