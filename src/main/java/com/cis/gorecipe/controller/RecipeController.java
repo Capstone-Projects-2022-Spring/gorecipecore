@@ -7,6 +7,7 @@ import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.repository.DietaryRestrictionRepository;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
+import com.cis.gorecipe.service.SpoonacularService;
 import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +46,14 @@ public class RecipeController {
 
     private final DietaryRestrictionRepository dietaryRestrictionRepository;
 
+    private final SpoonacularService spoonacularService;
+
     public RecipeController(RecipeRepository recipeRepository, IngredientRepository ingredientRepository,
-                            DietaryRestrictionRepository dietaryRestrictionRepository) {
+                            DietaryRestrictionRepository dietaryRestrictionRepository, SpoonacularService spoonacularService) {
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
         this.dietaryRestrictionRepository = dietaryRestrictionRepository;
+        this.spoonacularService = spoonacularService;
     }
 
     /**
