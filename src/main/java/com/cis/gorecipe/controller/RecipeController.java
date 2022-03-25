@@ -1,13 +1,13 @@
 package com.cis.gorecipe.controller;
 
 import com.cis.gorecipe.exception.RecipeNotFoundException;
-import com.cis.gorecipe.model.DietaryRestriction;
 import com.cis.gorecipe.model.Ingredient;
 import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.repository.DietaryRestrictionRepository;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.service.SpoonacularService;
+import io.swagger.annotations.ApiOperation;
 import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class handles the API endpoints related to recipes
@@ -113,63 +112,50 @@ public class RecipeController {
     }
 
     /**
-     * @param ingredients an optional string of comma-separated ingredient names (e.g. "tomato,salmon,flour")
-     * @param restrictions an optional string of comma-separated dietary restriction IDs (e.g. "2,5,1")
-     * @param query an optional string that should occur somewhere in the recipe (either recipe body or title)
+     * @param intolerances an optional comma separated string of 1 or more intolerances
+     * @param diet         an optional comma separated string of 1 or more diets
+     * @param cuisine      an optional comma separated string of 1 or more cuisines
+     * @param query        a required string that should occur somewhere in the recipe (either recipe body or title)
      * @return a list of recipes that meet the searchQuery parameters
+     * @throws Exception
      */
     @GetMapping("/search")
-    public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam(name = "ingredients", required = false) String ingredients, // comma separated ingredient IDs
-                                                      @RequestParam(name = "restrictions", required = false) String restrictions, // comma separated restriction IDs
-                                                      @RequestParam(name = "query", required = false) String query) {
+    @ApiOperation(value = "Search for recipes",
+            notes = "<b>Intolerances is a comma separated string of 1 or more of the following:</b> dairy, egg, " +
+                    "gluten, peanut, sesame, seafood, shellfish, soy, sulfite, tree nut, and wheat\n" +
+                    "<b>Diet is a comma separated string of 1 or more of the following:</b> pescetarian," +
+                    " lacto vegetarian, ovo vegetarian, vegan, and vegetarian\n" +
+                    "<b>Cuisine is a comma separated string of 1 or more of the following:</b> african," +
+                    " chinese, japanese, korean, vietnamese, thai, indian, british, irish, french, " +
+                    "italian, mexican, spanish, middle eastern, jewish, american, cajun, southern," +
+                    " greek, german, nordic, eastern european, caribbean, or latin american ")
+    public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam(name = "intolerances", required = false) String intolerances,
+                                                      @RequestParam(name = "diet", required = false) String diet,
+                                                      @RequestParam(name = "cuisine", required = false) String cuisine,
+                                                      @RequestParam(name = "query") String query) throws Exception {
 
-        // if no search params are provided, we don't return anything
-        if (ingredients == null && restrictions == null && query == null)
-            return ResponseEntity.badRequest().build();
+        Map<String, String> searchParameters = new HashMap<>();
 
-        if (query == null)
-            query = "(.*?)";
-        else
-            query = ".*" + query + ".*";
+        searchParameters.put("query", query);
+        searchParameters.put("instructionsRequired", "True");
+        searchParameters.put("number", "10"); // return 100 results
+        searchParameters.put("cuisine", cuisine);
+        searchParameters.put("diet", diet);
+        searchParameters.put("intolerances", intolerances);
 
-        List<Ingredient> ingredientList = new ArrayList<>();
-        if (ingredients != null)
-            ingredientList = ingredientRepository.findAllById(Arrays.asList(ingredients.split(",")));
+        List<Recipe> recipes = spoonacularService.search(searchParameters);
 
-        List<DietaryRestriction> restrictionList = new ArrayList<>();
-        if (restrictions != null)
-            restrictionList = dietaryRestrictionRepository
-                    .findAllById(
-                              Stream.of(restrictions.split(","))
-                                    .map(Long::valueOf)
-                                    .collect(Collectors.toList())
-                    );
+        /* a very stupid workaround for ManyToMany relation b/c I don't really understand the best way to use them
+         * save the recipe with no ingredients -> save the ingredients -> save the recipe with ingredients */
+        for (Recipe r : recipes) {
+            List<Ingredient> i = r.getIngredients();
+            r.setIngredients(new ArrayList<>());
+            recipeRepository.save(r);
+            ingredientRepository.saveAll(i);
+            r.setIngredients(i);
+        }
 
-        List<DietaryRestriction> finalRestrictionList = restrictionList;
-        List<Ingredient> finalIngredientList = ingredientList;
-        String finalQuery = query;
-
-        List<Recipe> recipes = recipeRepository.findAll()
-                .stream()
-                .filter(recipe -> {
-                    for (DietaryRestriction d : finalRestrictionList)
-                        for (Ingredient i : d.getDisallowedIngredients())
-                            if (recipe.getIngredients().contains(i))
-                                return false;
-
-                    return true;
-                })
-                .filter(recipe -> {
-                    for (Ingredient recipeI : recipe.getIngredients())
-                        for (Ingredient i : finalIngredientList)
-                            if (recipeI.equals(i))
-                                return true;
-
-                    return false;
-                })
-                .filter(recipe -> (recipe.getContent().matches(finalQuery) ||
-                                   recipe.getName().matches(finalQuery)))
-                .collect(Collectors.toList());
+        recipeRepository.saveAll(recipes);
 
         return ResponseEntity.ok().body(recipes);
     }

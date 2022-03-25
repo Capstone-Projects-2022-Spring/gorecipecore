@@ -1,6 +1,5 @@
 package com.cis.gorecipe;
 
-import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
@@ -32,11 +31,8 @@ public class Application {
 
     private final UserRepository userRepository;
 
-    private final RecipeRepository recipeRepository;
-
-    public Application(UserRepository repository, RecipeRepository recipeRepository) {
+    public Application(UserRepository repository) {
         this.userRepository = repository;
-        this.recipeRepository = recipeRepository;
     }
 
     public static void main(String[] args) {
@@ -74,7 +70,6 @@ public class Application {
     public CommandLineRunner createMockUsers() {
         return (args) -> {
             userRepository.deleteAll();
-            recipeRepository.deleteAll();
 
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -123,12 +118,6 @@ public class Application {
                             .setPassword(encoder.encode("password"))};
 
             userRepository.saveAll(Arrays.asList(mockUsers));
-
-            long l = 1L;
-            for (String s : new String[]{"Super Duper Pasta", "Bowling for Soup", "Another Recipe Name"}) {
-                Recipe r = new Recipe().setName(s).setId(l++);
-                recipeRepository.save(r);
-            }
         };
     }
 }

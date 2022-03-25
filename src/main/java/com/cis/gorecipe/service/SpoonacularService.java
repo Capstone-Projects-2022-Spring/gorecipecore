@@ -2,12 +2,10 @@ package com.cis.gorecipe.service;
 
 import com.cis.gorecipe.model.Recipe;
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 
-import java.io.IOException;
 import java.net.http.HttpClient;
-import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Map;
 
 public interface SpoonacularService {
 
@@ -19,8 +17,7 @@ public interface SpoonacularService {
 
     Gson parser = new Gson();
 
-    List<Recipe> search() throws Exception;
-
+    List<Recipe> search(Map<String, String> searchParameters) throws Exception;
 
 
 }

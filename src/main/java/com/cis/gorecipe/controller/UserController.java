@@ -190,20 +190,19 @@ public class UserController {
     }
 
     /**
-     *
      * @param dateAsString the date on which the user wants to cook a recipe
-     * @param userId the user who wants to cook the recipe
-     * @param recipeId the recipe which the user wants to cook
+     * @param userId       the user who wants to cook the recipe
+     * @param recipeId     the recipe which the user wants to cook
      * @return an HTTP status indicating if the item was saved or not
      */
     @PostMapping("/{userId}/calendar/{recipeId}")
     @ApiOperation(value = "Add recipe to user's calendar", notes = "The date is formatted as yyyy-MM-dd, but the " +
-                          "backend parameter had to be a String because of parsing issues.")
+            "backend parameter had to be a String because of parsing issues.")
     public ResponseEntity<Void> addRecipeToUsersCalendar(@RequestBody @JsonProperty("date") String dateAsString,
                                                          @PathVariable Long userId,
                                                          @PathVariable Long recipeId) {
 
-        if (! (userRepository.existsById(userId) && recipeRepository.existsById(recipeId)) )
+        if (!(userRepository.existsById(userId) && recipeRepository.existsById(recipeId)))
             return ResponseEntity.notFound().build();
 
         try {
