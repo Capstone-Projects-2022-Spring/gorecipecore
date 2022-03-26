@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.cis.gorecipe"},{"l":"com.cis.gorecipe.controller"},{"l":"com.cis.gorecipe.dto"},{"l":"com.cis.gorecipe.exception"},{"l":"com.cis.gorecipe.model"},{"l":"com.cis.gorecipe.repository"},{"l":"com.cis.gorecipe.service"},{"l":"com.cis.gorecipe.util"}]
