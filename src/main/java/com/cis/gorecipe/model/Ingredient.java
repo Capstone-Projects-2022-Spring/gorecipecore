@@ -28,9 +28,9 @@ public class Ingredient {
     @Id
     private String name;
 
-    /**
-     * A list of recipes that this ingredient is in
-     */
-    @ManyToMany(mappedBy = "ingredients", fetch = FetchType.LAZY)
-    private List<Recipe> recipesThatContainIngredient = new ArrayList<>();
+//    /**
+//     * A list of recipes that this ingredient is in
+//     */
+//    @ManyToMany(mappedBy = "ingredients", fetch = FetchType.LAZY)
+//    private List<Recipe> recipesThatContainIngredient = new ArrayList<>();
 }

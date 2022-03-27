@@ -2,8 +2,10 @@ package com.cis.gorecipe.service;
 
 import com.cis.gorecipe.model.Ingredient;
 import com.cis.gorecipe.model.Recipe;
+import com.cis.gorecipe.repository.RecipeRepository;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -19,6 +21,12 @@ import java.util.Map;
 @Service
 public class SpoonacularServiceImpl implements SpoonacularService {
 
+    RecipeRepository recipeRepository;
+
+    public SpoonacularServiceImpl(RecipeRepository recipeRepository) {
+        this.recipeRepository = recipeRepository;
+    }
+
     /**
      * @param result the JSON object representation of the recipe
      * @return a Recipe object containing the information parsed from the JSON
@@ -30,14 +38,15 @@ public class SpoonacularServiceImpl implements SpoonacularService {
                 .setImageURL(result.get("image").getAsString())
                 .setPrepTime(result.get("readyInMinutes").getAsInt())
                 .setSpoonacularId(result.get("id").getAsLong())
-                .setContent(result.get("instructions").getAsString())
-                .setSourceURL(result.get("sourceUrl").getAsString());
+                .setSourceURL(result.get("sourceUrl").getAsString())
+                .setInstructions(result.get("instructions").getAsString());
 
         for (JsonElement e : result.get("extendedIngredients").getAsJsonArray()) {
-
             JsonObject o = e.getAsJsonObject();
             recipe.addIngredient(new Ingredient()
                     .setName(o.get("name").getAsString()));
+
+            recipe.getVerboseIngredients().add(o.get("original").getAsString());
         }
 
         return recipe;
@@ -75,8 +84,6 @@ public class SpoonacularServiceImpl implements SpoonacularService {
         if (url.endsWith("&"))
             url = url.substring(0, url.length() - 1);
 
-        System.out.println(url);
-
         /* the initial search only includes basic recipe information, so we need to individually look up
          * recipes in a second set of requests to get ingredients, instructions, etc */
         HttpRequest request = HttpRequest.newBuilder()
@@ -98,6 +105,11 @@ public class SpoonacularServiceImpl implements SpoonacularService {
         List<Recipe> recipes = new ArrayList<>();
         for (JsonElement element : object.get("results").getAsJsonArray()) {
             String id = element.getAsJsonObject().get("id").getAsString();
+
+            if (recipeRepository.existsBySpoonacularId(Long.parseLong(id))) {
+                recipes.add(recipeRepository.findRecipeBySpoonacularId(Long.parseLong(id)));
+                continue;
+            }
 
             request = HttpRequest.newBuilder()
                     .uri(URI.create("https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" +

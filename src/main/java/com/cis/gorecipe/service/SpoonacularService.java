@@ -1,7 +1,9 @@
 package com.cis.gorecipe.service;
 
 import com.cis.gorecipe.model.Recipe;
+import com.cis.gorecipe.repository.RecipeRepository;
 import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.http.HttpClient;
 import java.util.List;
