@@ -1,6 +1,7 @@
 package com.cis.gorecipe.controller;
 
 import com.cis.gorecipe.dto.UserDTO;
+import com.cis.gorecipe.exception.RecipeNotFoundException;
 import com.cis.gorecipe.exception.UserNotFoundException;
 import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.model.RecipeCalendarItem;
@@ -9,6 +10,8 @@ import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeCalendarItemRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
+import com.cis.gorecipe.service.S3Service;
+import com.cis.gorecipe.util.FileUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.PropertyValueException;
@@ -19,13 +22,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * This class handles the API endpoints related to user account management
@@ -33,7 +36,6 @@ import java.util.Locale;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
 
     /**
      * For logging any errors that occur during runtime (e.g. a user is not found)
@@ -65,17 +67,44 @@ public class UserController {
      */
     private final RecipeCalendarItemRepository calendarRepository;
 
+
+    private final S3Service s3Service;
+
     /**
      * For parsing dates
      */
     private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
     public UserController(UserRepository userRepository, RecipeRepository recipeRepository,
-                          IngredientRepository ingredientRepository, RecipeCalendarItemRepository calendarRepository) {
+                          IngredientRepository ingredientRepository, RecipeCalendarItemRepository calendarRepository, S3Service s3Service) {
         this.userRepository = userRepository;
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
         this.calendarRepository = calendarRepository;
+        this.s3Service = s3Service;
+    }
+
+    @PostMapping("/{id}/profile-picture")
+    public ResponseEntity<User> uploadProfilePicture(@RequestPart("image") MultipartFile image,
+                                                     @PathVariable("id") Long id) throws IOException {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new UserNotFoundException(id)
+                );
+
+        if (!FileUtil.isImage(image))
+            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();
+
+        String fileName = "profile_picture_" + user.getId() + "." +
+                Objects.requireNonNull(image.getContentType()).split("/")[1];
+
+        String image_s3_URI = s3Service.uploadFile(fileName, image.getInputStream(), image.getContentType());
+
+        user.setProfilePicture(image_s3_URI);
+        user = userRepository.save(user);
+
+        return ResponseEntity.ok(user);
     }
 
     /**
@@ -268,10 +297,15 @@ public class UserController {
      * @param userId the id of the user who's saved recipes are being requested
      * @return a list of recipes that the specified user saved
      */
-    @ApiIgnore
     @GetMapping("/{userId}/recipes")
     public ResponseEntity<List<Recipe>> getSavedRecipes(@PathVariable Long userId) {
-        return null;
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(userId)
+                );
+
+        return ResponseEntity.ok(new ArrayList<>(user.getSavedRecipes()));
     }
 
     /**
@@ -282,7 +316,21 @@ public class UserController {
     @ApiIgnore
     @PostMapping("/{userId}/recipes/{recipeId}")
     public ResponseEntity<Void> saveRecipeToAccount(@PathVariable Long userId, @PathVariable Long recipeId) {
-        return null;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(userId)
+                );
+
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() ->
+                        new RecipeNotFoundException(recipeId)
+                );
+
+        Set<Recipe> recipes = user.getSavedRecipes();
+        recipes.add(recipe);
+        user.setSavedRecipes(recipes);
+
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -292,8 +340,23 @@ public class UserController {
      */
     @ApiIgnore
     @DeleteMapping("/{userId}/recipes/{recipeId}")
-    public ResponseEntity<Void> unsaveRecipeFromAccount(@PathVariable Long userId, @PathVariable Long recipeId) {
-        return null;
+    public ResponseEntity<Void> removeSavedRecipeFromAccount(@PathVariable Long userId, @PathVariable Long recipeId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(userId)
+                );
+
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() ->
+                        new RecipeNotFoundException(recipeId)
+                );
+
+        Set<Recipe> recipes = user.getSavedRecipes();
+        recipes.remove(recipe);
+        user.setSavedRecipes(recipes);
+
+        return ResponseEntity.ok().build();
     }
 
     /**
