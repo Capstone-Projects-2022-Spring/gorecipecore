@@ -5,6 +5,8 @@ import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.repository.RecipeRepository;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import java.util.Map;
  */
 @Service
 public class SpoonacularServiceImpl implements SpoonacularService {
+
+    Logger logger = LoggerFactory.getLogger(SpoonacularServiceImpl.class);
 
     RecipeRepository recipeRepository;
 
@@ -70,7 +74,7 @@ public class SpoonacularServiceImpl implements SpoonacularService {
             url += "instructionsRequired=" + parameters.get("instructionsRequired") + "&";
 
         if (parameters.containsKey("number"))
-            url += "number=" + parameters.get("number");
+            url += "number=" + parameters.get("number") + "&";
 
         if (parameters.get("cuisine") != null)
             url += "cuisine=" + parameters.get("cuisine") + "&";
@@ -84,6 +88,8 @@ public class SpoonacularServiceImpl implements SpoonacularService {
         if (url.endsWith("&"))
             url = url.substring(0, url.length() - 1);
 
+        url = url.replace(" ", "%20");
+
         /* the initial search only includes basic recipe information, so we need to individually look up
          * recipes in a second set of requests to get ingredients, instructions, etc */
         HttpRequest request = HttpRequest.newBuilder()
@@ -95,8 +101,10 @@ public class SpoonacularServiceImpl implements SpoonacularService {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() != 200)
+        if (response.statusCode() != 200) {
+            logger.warn(url);
             throw new Exception("Request to Spoonacular API failed!");
+        }
 
         JsonObject object = parser.fromJson(response.body(), JsonElement.class)
                 .getAsJsonObject();
