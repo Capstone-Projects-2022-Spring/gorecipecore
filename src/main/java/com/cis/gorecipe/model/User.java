@@ -30,6 +30,11 @@ public class User {
     private Long id;
 
     /**
+     * The URL to the S3 storage for the user's profile picture
+     */
+    private String profilePicture;
+
+    /**
      * A unique string for user login
      */
     @Column(unique = true, nullable = false)
