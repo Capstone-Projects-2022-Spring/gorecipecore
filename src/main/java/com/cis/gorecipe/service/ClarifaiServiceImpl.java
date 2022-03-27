@@ -1,25 +1,23 @@
 package com.cis.gorecipe.service;
 
 import com.cis.gorecipe.model.Ingredient;
-import com.clarifai.channel.ClarifaiChannel;
-import com.clarifai.credentials.ClarifaiCallCredentials;
 import com.clarifai.grpc.api.*;
 import com.clarifai.grpc.api.status.StatusCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This service class manages all interactions with the Clarifai API
+ */
 @Service
 public class ClarifaiServiceImpl implements ClarifaiService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClarifaiServiceImpl.class);
-
-    private static final V2Grpc.V2BlockingStub stub = V2Grpc.newBlockingStub(ClarifaiChannel.INSTANCE.getGrpcChannel())
-            .withCallCredentials(new ClarifaiCallCredentials(System.getenv().get("CLARIFAI_API_KEY")));
-
+    /**
+     * @param imageUrl the AWS S3 URL of the image to be processed
+     * @return the list of ingredients identified in the image by Clarifai with a confidence of >=50%
+     */
     @Override
     public List<Ingredient> processImage(String imageUrl) {
         MultiOutputResponse response = stub.postModelOutputs(

@@ -1,9 +1,11 @@
 package com.cis.gorecipe.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.checkerframework.common.reflection.qual.ClassBound;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -19,34 +21,49 @@ import java.util.List;
 @Accessors(chain = true)
 public class Recipe {
 
+    @Id
+    @GeneratedValue
+    private Long id;
+
     /**
      * How many minutes does the recipe take to prepare
      */
-    Integer prepTime;
+    private Integer prepTime;
+
     /**
      * If the recipe was sourced from the Spoonacular API, what is their ID for it
      */
     @Column(unique = true)
-    Long spoonacularId;
+    private Long spoonacularId;
+
     /**
      * The unique recipe name (e.g. French Onion Soup), also serves as PK
      */
-    @Id
+    @Column(unique = true, nullable = false)
     private String name;
+
     /**
      * The formatted text containing the recipe instructions
      */
     @Lob
-    private String content;
+    private String instructions;
+
     /**
      * The list of ingredients to be used in the recipe
      */
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "recipe_ingredients",
-            joinColumns = @JoinColumn(name = "recipe_id"),
-            inverseJoinColumns = @JoinColumn(name = "ingredient_name"))
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
+//    @JoinTable(
+//            name = "recipe_ingredients",
+//            joinColumns = @JoinColumn(name = "recipe_id"),
+//            inverseJoinColumns = @JoinColumn(name = "ingredient_name"))
     private List<Ingredient> ingredients = new ArrayList<>();
+
+    /**
+     * This collection stores the ingredient names and quantities
+     */
+    @ElementCollection
+    private List<String> verboseIngredients = new ArrayList<>();
 
     /**
      * An optional hyperlink to an image of the prepared recipe
@@ -63,21 +80,12 @@ public class Recipe {
      */
     private String sourceURL;
 
+    /**
+     * @param ingredient an ingredient to be added to the recipe's ingredient list
+     * @return the recipe object
+     */
     public Recipe addIngredient(Ingredient ingredient) {
         ingredients.add(ingredient);
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return "Recipe{" +
-                "  name='" + name + '\'' +
-                ", content='" + content + '\'' +
-                ", prepTime=" + prepTime +
-                ", spoonacularId=" + spoonacularId +
-                ", ingredients=" + ingredients +
-                ", imageURL='" + imageURL + '\'' +
-                ", videoURL='" + videoURL + '\'' +
-                '}';
     }
 }

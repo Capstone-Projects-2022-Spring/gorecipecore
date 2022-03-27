@@ -55,10 +55,19 @@ public class UserController {
      */
     private final IngredientRepository ingredientRepository;
 
+    /**
+     * Handles hashing passwords and checking password equality
+     */
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
+    /**
+     * For interfacing with the RecipeCalendarItem table in the database
+     */
     private final RecipeCalendarItemRepository calendarRepository;
 
+    /**
+     * For parsing dates
+     */
     private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
     public UserController(UserRepository userRepository, RecipeRepository recipeRepository,
@@ -222,6 +231,10 @@ public class UserController {
         }
     }
 
+    /**
+     * @param id the ID of the calendar item to remove
+     * @return an HTTP response indicating if the item has successfully been deleted
+     */
     @DeleteMapping("/calendar/{id}")
     @ApiOperation(value = "Remove a recipe from a user's calendar")
     public ResponseEntity<Void> deleteRecipeFromDate(@PathVariable Long id) {
@@ -234,6 +247,10 @@ public class UserController {
         }
     }
 
+    /**
+     * @param userId the ID of the user whose calendar we want
+     * @return a list of all items saved to the user's calendar
+     */
     @GetMapping("/{userId}/calendar")
     @ApiOperation(value = "Fetch a list of all recipes that have been saved to a user's calendar")
     public ResponseEntity<List<RecipeCalendarItem>> getUsersCalendar(@PathVariable Long userId) {

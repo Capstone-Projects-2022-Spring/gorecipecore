@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -23,8 +21,6 @@ import static javax.persistence.TemporalType.DATE;
 @Setter
 @Accessors(chain = true)
 public class User {
-
-    private static final Logger logger = LoggerFactory.getLogger(User.class);
 
     /**
      * The primary key of the user

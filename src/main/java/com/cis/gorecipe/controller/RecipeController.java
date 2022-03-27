@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This class handles the API endpoints related to recipes
@@ -43,12 +44,19 @@ public class RecipeController {
      */
     private final IngredientRepository ingredientRepository;
 
+    /**
+     * For interfacing with the DietaryRestriction table in the database
+     */
     private final DietaryRestrictionRepository dietaryRestrictionRepository;
 
+    /**
+     * Handles all interactions with the Spoonacular API
+     */
     private final SpoonacularService spoonacularService;
 
     public RecipeController(RecipeRepository recipeRepository, IngredientRepository ingredientRepository,
-                            DietaryRestrictionRepository dietaryRestrictionRepository, SpoonacularService spoonacularService) {
+                            DietaryRestrictionRepository dietaryRestrictionRepository,
+                            SpoonacularService spoonacularService) {
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
         this.dietaryRestrictionRepository = dietaryRestrictionRepository;
@@ -145,9 +153,15 @@ public class RecipeController {
 
         List<Recipe> recipes = spoonacularService.search(searchParameters);
 
+        logger.warn("Number of recipes: " + recipes.size());
+
         /* a very stupid workaround for ManyToMany relation b/c I don't really understand the best way to use them
          * save the recipe with no ingredients -> save the ingredients -> save the recipe with ingredients */
         for (Recipe r : recipes) {
+
+            if (recipeRepository.existsByName(r.getName()))
+                continue;
+
             List<Ingredient> i = r.getIngredients();
             r.setIngredients(new ArrayList<>());
             recipeRepository.save(r);
@@ -155,7 +169,15 @@ public class RecipeController {
             r.setIngredients(i);
         }
 
-        recipeRepository.saveAll(recipes);
+        recipes.forEach((r) -> {
+            if (!recipeRepository.existsByName(r.getName()))
+                recipeRepository.save(r);
+        });
+
+        recipes = recipeRepository.findAllByNameIn(recipes
+                .stream()
+                .map(Recipe::getName)
+                .collect(Collectors.toList()));
 
         return ResponseEntity.ok().body(recipes);
     }
