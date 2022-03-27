@@ -153,8 +153,6 @@ public class RecipeController {
 
         List<Recipe> recipes = spoonacularService.search(searchParameters);
 
-        logger.warn("Number of recipes: " + recipes.size());
-
         /* a very stupid workaround for ManyToMany relation b/c I don't really understand the best way to use them
          * save the recipe with no ingredients -> save the ingredients -> save the recipe with ingredients */
         for (Recipe r : recipes) {
