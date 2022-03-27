@@ -37,7 +37,6 @@ import java.util.*;
 @RequestMapping("/api/users")
 public class UserController {
 
-
     /**
      * For logging any errors that occur during runtime (e.g. a user is not found)
      */
