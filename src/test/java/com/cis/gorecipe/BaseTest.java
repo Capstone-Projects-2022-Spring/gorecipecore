@@ -18,13 +18,18 @@ import java.util.TimeZone;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
+/**
+ * This class establishes the testcontainer environment and all objects needed for any testing
+ */
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(locations = "classpath:test.properties")
-//@Transactional
 public abstract class BaseTest {
 
+    /**
+     * An isolated MySQL database inside a docker container to use for testing
+     */
     private static final MySQLContainer<?> mySQLContainer;
 
     static {
@@ -35,11 +40,16 @@ public abstract class BaseTest {
         mySQLContainer.start();
     }
 
+    /**
+     * A JSON serializer to deserialize API responses
+     */
     protected final ObjectMapper serializer = new ObjectMapper();
 
     protected final ClassLoader classLoader = getClass().getClassLoader();
+
     @Autowired
     protected WebApplicationContext wac;
+
     @Autowired
     protected MockMvc mockMvc;
 

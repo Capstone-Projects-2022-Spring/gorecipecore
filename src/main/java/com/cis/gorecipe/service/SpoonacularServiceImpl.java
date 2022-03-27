@@ -13,9 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class handles all interfacing with the Spoonacular Food and Recipe API
+ */
 @Service
 public class SpoonacularServiceImpl implements SpoonacularService {
 
+    /**
+     * @param result the JSON object representation of the recipe
+     * @return a Recipe object containing the information parsed from the JSON
+     */
     private Recipe parseRecipe(JsonObject result) {
 
         Recipe recipe = new Recipe()
@@ -36,6 +43,12 @@ public class SpoonacularServiceImpl implements SpoonacularService {
         return recipe;
     }
 
+    /**
+     * @param parameters a map of the search parameters for the Spoonacular API
+ *                      (see https://rapidapi.com/spoonacular/api/recipe-food-nutrition/)
+     * @return a list of Recipe objects returned by the search
+     * @throws Exception
+     */
     @Override
     public List<Recipe> search(Map<String, String> parameters) throws Exception {
 

@@ -43,12 +43,19 @@ public class RecipeController {
      */
     private final IngredientRepository ingredientRepository;
 
+    /**
+     * For interfacing with the DietaryRestriction table in the database
+     */
     private final DietaryRestrictionRepository dietaryRestrictionRepository;
 
+    /**
+     * Handles all interactions with the Spoonacular API
+     */
     private final SpoonacularService spoonacularService;
 
     public RecipeController(RecipeRepository recipeRepository, IngredientRepository ingredientRepository,
-                            DietaryRestrictionRepository dietaryRestrictionRepository, SpoonacularService spoonacularService) {
+                            DietaryRestrictionRepository dietaryRestrictionRepository,
+                            SpoonacularService spoonacularService) {
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
         this.dietaryRestrictionRepository = dietaryRestrictionRepository;

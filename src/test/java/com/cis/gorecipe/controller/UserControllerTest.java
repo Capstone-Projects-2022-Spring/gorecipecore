@@ -18,7 +18,8 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Date;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -88,7 +89,6 @@ class UserControllerTest extends BaseTest {
                         .setId(6L)
                         .setPassword(encoder.encode("password"))};
     }
-
 
     /**
      * Test whether a new user (with complete and valid data) can be created

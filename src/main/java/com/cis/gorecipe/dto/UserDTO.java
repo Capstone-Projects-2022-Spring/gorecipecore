@@ -24,12 +24,14 @@ public class UserDTO {
      */
     private Long id;
 
-
     /**
      * A unique string for user login
      */
     private String username;
 
+    /**
+     * A salted and hashed password
+     */
     private String password;
 
     /**

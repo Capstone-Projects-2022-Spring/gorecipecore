@@ -1,7 +1,6 @@
 package com.cis.gorecipe;
 
 import com.cis.gorecipe.model.User;
-import com.cis.gorecipe.repository.RecipeRepository;
 import com.cis.gorecipe.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

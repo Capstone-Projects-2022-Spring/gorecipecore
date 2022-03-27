@@ -53,8 +53,14 @@ public class FoodImageController {
      */
     private final IngredientRepository ingredientRepository;
 
+    /**
+     * Handles all interactions with AWS S3
+     */
     private final S3Service s3Service;
 
+    /**
+     * Handles all interactions with the Clarifai Food Recognition API
+     */
     private final ClarifaiService clarifaiService;
 
     public FoodImageController(FoodImageRepository foodImageRepository, UserRepository userRepository,

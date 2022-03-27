@@ -23,21 +23,25 @@ public class Recipe {
      * How many minutes does the recipe take to prepare
      */
     Integer prepTime;
+
     /**
      * If the recipe was sourced from the Spoonacular API, what is their ID for it
      */
     @Column(unique = true)
     Long spoonacularId;
+
     /**
      * The unique recipe name (e.g. French Onion Soup), also serves as PK
      */
     @Id
     private String name;
+
     /**
      * The formatted text containing the recipe instructions
      */
     @Lob
     private String content;
+
     /**
      * The list of ingredients to be used in the recipe
      */
@@ -63,6 +67,10 @@ public class Recipe {
      */
     private String sourceURL;
 
+    /**
+     * @param ingredient an ingredient to be added to the recipe's ingredient list
+     * @return the recipe object
+     */
     public Recipe addIngredient(Ingredient ingredient) {
         ingredients.add(ingredient);
         return this;
