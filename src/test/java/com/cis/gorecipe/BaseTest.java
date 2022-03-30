@@ -18,9 +18,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
+import org.testcontainers.containers.MySQLContainer;
 
 import java.util.TimeZone;
 
@@ -33,8 +36,27 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(locations = "classpath:test.properties")
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public abstract class BaseTest {
+
+    /**
+     * An isolated MySQL database inside a docker container to use for testing
+     */
+    private static final MySQLContainer<?> mySQLContainer;
+
+    static {
+        mySQLContainer = new MySQLContainer<>("mysql:latest")
+                .withUsername("testcontainers")
+                .withPassword("Testcontain3rs!")
+                .withReuse(true);
+        mySQLContainer.start();
+    }
+
+    @DynamicPropertySource
+    public static void setDatasourceProperties(final DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", mySQLContainer::getJdbcUrl);
+        registry.add("spring.datasource.password", mySQLContainer::getPassword);
+        registry.add("spring.datasource.username", mySQLContainer::getUsername);
+    }
 
     /**
      * A JSON serializer to deserialize API responses
