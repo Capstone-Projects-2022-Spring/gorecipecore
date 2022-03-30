@@ -1,29 +1,25 @@
-
 name: Run JUnit Tests
-on:
-  pull_request:
-    types: [opened, reopened]
+on: push
 jobs:
-  build:
+  run_tests:
     runs-on: ubuntu-latest
     steps:
       - uses: szenius/set-timezone@v1.0
         with:
-          timezoneLinux: "EST"
-          timezoneMacos: "EST"
-          timezoneWindows: "EST"
-      - uses: actions/checkout@v2
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
+            timezoneLinux: "EST"
+            timezoneMacos: "EST"
+            timezoneWindows: "EST"
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Set up JDK 14
+        uses: actions/setup-java@v1
         with:
-          java-version: '11'
-          distribution: 'adopt'
-          cache: maven
-      - name: Set Environment Variables
-        env:
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-      - name: Clear Maven cache
-        run: mvn clean install -U
-      - name: Build with Maven
-        run: mvn --batch-mode test
+          java-version: 14
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Run tests with Maven
+        run: mvn -B test --file pom.xml
