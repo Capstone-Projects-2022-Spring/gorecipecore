@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.checkerframework.common.reflection.qual.ClassBound;
 
 import javax.persistence.*;
 import java.util.ArrayList;

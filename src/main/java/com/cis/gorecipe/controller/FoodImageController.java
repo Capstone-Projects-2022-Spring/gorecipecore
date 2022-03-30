@@ -103,10 +103,15 @@ public class FoodImageController {
                 .map(ingredientRepository::saveAndFlush)
                 .collect(Collectors.toList());
 
+        /* this is stupid, but it makes testing easier */
+        String s3ID = image_s3_URI.substring(image_s3_URI.lastIndexOf("/")+1);
+
         FoodImage foodImage = new FoodImage()
                 .setImageOf(new HashSet<>(ingredients))
-                .setS3objectId(fileName)
+                .setS3objectId(s3ID)
                 .setUploadedBy(user);
+
+        logger.warn(foodImage.getS3objectId());
 
         foodImageRepository.saveAndFlush(foodImage);
 
