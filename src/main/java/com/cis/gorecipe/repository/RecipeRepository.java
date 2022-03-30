@@ -4,7 +4,6 @@ import com.cis.gorecipe.model.Recipe;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * This interface provides a way to use JPA to interface with the GoRecipe database to manage Recipes

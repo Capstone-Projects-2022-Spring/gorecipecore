@@ -2,9 +2,6 @@ package com.cis.gorecipe.controller;
 
 import com.cis.gorecipe.BaseTest;
 import com.cis.gorecipe.model.Recipe;
-import com.cis.gorecipe.repository.IngredientRepository;
-import com.cis.gorecipe.repository.RecipeRepository;
-import com.cis.gorecipe.repository.UserRepository;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -17,9 +14,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -28,16 +26,7 @@ class RecipeControllerTest extends BaseTest {
     private final Logger logger = LoggerFactory.getLogger(RecipeControllerTest.class);
 
     @Autowired
-    UserController controller;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    IngredientRepository ingredientRepository;
-
-    @Autowired
-    RecipeRepository recipeRepository;
+    RecipeController controller;
 
     /**
      * Test whether a valid recipe can be added
@@ -168,6 +157,10 @@ class RecipeControllerTest extends BaseTest {
     @Test
     public void testSearchRecipes() throws Exception {
 
+        when(spoonacularService.search(any()))
+                .thenReturn(Arrays.asList(new Recipe().setName("corn").setSpoonacularId(1L),
+                                          new Recipe().setName("tomato").setSpoonacularId(2L)));
+
         String result = mockMvc.perform(get("/api/recipes/search")
                 .param("query", "soup")
                 .param("intolerances", "egg")
@@ -179,6 +172,6 @@ class RecipeControllerTest extends BaseTest {
 
         List<Recipe> actual = Arrays.asList(serializer.readValue(result, Recipe[].class));
 
-        assertNotEquals(actual.size(), 0);
+        assertEquals(actual.size(), 2);
     }
 }

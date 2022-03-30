@@ -4,15 +4,11 @@ import com.cis.gorecipe.BaseTest;
 import com.cis.gorecipe.model.FoodImage;
 import com.cis.gorecipe.model.Ingredient;
 import com.cis.gorecipe.model.User;
-import com.cis.gorecipe.repository.FoodImageRepository;
-import com.cis.gorecipe.repository.IngredientRepository;
-import com.cis.gorecipe.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Arrays;
@@ -21,6 +17,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,21 +28,7 @@ class FoodImageControllerTest extends BaseTest {
     private final Logger logger = LoggerFactory.getLogger(FoodImageControllerTest.class);
 
     @Autowired
-    UserController controller;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    IngredientRepository ingredientRepository;
-
-    @Autowired
-    FoodImageRepository foodImageRepository;
-
-    @Autowired
-    FoodImageController foodImageController;
-
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    FoodImageController controller;
 
     /**
      * Test whether a JPG image can be uploaded and will return a list of ingredients
@@ -52,6 +36,13 @@ class FoodImageControllerTest extends BaseTest {
     @DirtiesContext
     @Test
     public void testUploadImage() throws Exception {
+
+        when(s3Service.uploadFile(any(), any(), any()))
+                .thenReturn("aws.example.com/test_img_1.jpg");
+
+        when(clarifaiService.processImage(same("aws.example.com/test_img_1.jpg")))
+                .thenReturn(Arrays.asList(new Ingredient().setName("corn"),
+                                          new Ingredient().setName("tomato")));
 
         User mockUser = new User().setUsername("username1")
                 .setEmail("yakir@temple.edu")
@@ -78,7 +69,7 @@ class FoodImageControllerTest extends BaseTest {
 
         List<Ingredient> list = Arrays.asList(serializer.readValue(result, Ingredient[].class));
 
-        assertNotEquals(list.size(), 0);
+        assertEquals(list.size(), 2);
     }
 
     /**
@@ -133,6 +124,13 @@ class FoodImageControllerTest extends BaseTest {
     @Test
     public void testGetUserImages() throws Exception {
 
+        when(s3Service.uploadFile(any(), any(), any()))
+                .thenReturn("aws.example.com/test_img_1.jpg");
+
+        when(clarifaiService.processImage(same("aws.example.com/test_img_1.jpg")))
+                .thenReturn(Arrays.asList(new Ingredient().setName("corn"),
+                        new Ingredient().setName("tomato")));
+
         User mockUser = new User().setUsername("username1")
                 .setEmail("yakir@temple.edu")
                 .setFirstName("Yakir")
@@ -169,7 +167,6 @@ class FoodImageControllerTest extends BaseTest {
 
         assertEquals(foodImage.getUploadedBy(), mockUser);
         assertNotEquals(foodImage.getImageOf().size(), 0);
-        assertTrue(foodImage.getS3objectId().startsWith(String.valueOf(mockUser.getId())));
         assertTrue(foodImage.getS3objectId().endsWith(".jpg"));
     }
 
@@ -189,6 +186,16 @@ class FoodImageControllerTest extends BaseTest {
     @DirtiesContext
     @Test
     public void testGetImage() throws Exception {
+
+        when(s3Service.uploadFile(any(), any(), any()))
+                .thenReturn("aws.example.com/test_img_1.jpg");
+
+        when(s3Service.getFileUrl(eq("test_img_1.jpg")))
+                .thenReturn("aws.example.com/test_img_1.jpg");
+
+        when(clarifaiService.processImage(same("aws.example.com/test_img_1.jpg")))
+                .thenReturn(Arrays.asList(new Ingredient().setName("corn"),
+                        new Ingredient().setName("tomato")));
 
         User mockUser = new User().setUsername("username1")
                 .setEmail("yakir@temple.edu")
@@ -218,7 +225,9 @@ class FoodImageControllerTest extends BaseTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(result, "https://gorecipe-foodimage-uploads.s3.us-east-2.amazonaws.com/" + foodImage.getS3objectId());
+        logger.warn(result);
+
+        assertEquals(result, "aws.example.com/test_img_1.jpg");
     }
 
     /**

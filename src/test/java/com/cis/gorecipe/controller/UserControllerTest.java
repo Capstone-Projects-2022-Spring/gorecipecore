@@ -3,9 +3,6 @@ package com.cis.gorecipe.controller;
 import com.cis.gorecipe.BaseTest;
 import com.cis.gorecipe.dto.UserDTO;
 import com.cis.gorecipe.model.User;
-import com.cis.gorecipe.repository.IngredientRepository;
-import com.cis.gorecipe.repository.RecipeRepository;
-import com.cis.gorecipe.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -13,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Date;
@@ -28,18 +24,7 @@ class UserControllerTest extends BaseTest {
     private final Logger logger = LoggerFactory.getLogger(UserControllerTest.class);
 
     @Autowired
-    UserController controller;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    IngredientRepository ingredientRepository;
-
-    @Autowired
-    RecipeRepository recipeRepository;
-
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    UserController userController;
 
     private User[] mockUsers;
 
