@@ -34,5 +34,5 @@ public interface SpoonacularService {
 
     List<Recipe> search(Map<String, String> searchParameters) throws Exception;
 
-
+    List<Recipe> recommend() throws Exception;
 }

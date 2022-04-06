@@ -3,6 +3,7 @@ package com.cis.gorecipe.service;
 import com.cis.gorecipe.model.Ingredient;
 import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.repository.RecipeRepository;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This class handles all interfacing with the Spoonacular Food and Recipe API
@@ -31,6 +33,29 @@ public class SpoonacularServiceImpl implements SpoonacularService {
     }
 
     /**
+     * @param url spoonacular API to get
+     * @return API results deserialized as JSON
+     */
+    private JsonElement sendGetRequest(String url) throws Exception {
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .setHeader("X-RapidAPI-Host", APIHOST)
+                .setHeader("X-RapidAPI-Key", APIKEY)
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            logger.warn(url);
+            throw new Exception("Request to Spoonacular API failed!");
+        }
+
+        return parser.fromJson(response.body(), JsonElement.class);
+    }
+
+    /**
      * @param result the JSON object representation of the recipe
      * @return a Recipe object containing the information parsed from the JSON
      */
@@ -38,11 +63,13 @@ public class SpoonacularServiceImpl implements SpoonacularService {
 
         Recipe recipe = new Recipe()
                 .setName(result.get("title").getAsString())
-                .setImageURL(result.get("image").getAsString())
                 .setPrepTime(result.get("readyInMinutes").getAsInt())
                 .setSpoonacularId(result.get("id").getAsLong())
                 .setSourceURL(result.get("sourceUrl").getAsString())
                 .setInstructions(result.get("instructions").getAsString());
+
+        if (result.get("image") != null)
+               recipe.setImageURL(result.get("image").getAsString());
 
         for (JsonElement e : result.get("extendedIngredients").getAsJsonArray()) {
             JsonObject o = e.getAsJsonObject();
@@ -57,9 +84,8 @@ public class SpoonacularServiceImpl implements SpoonacularService {
 
     /**
      * @param parameters a map of the search parameters for the Spoonacular API
- *                      (see https://rapidapi.com/spoonacular/api/recipe-food-nutrition/)
+     *                    (see https://rapidapi.com/spoonacular/api/recipe-food-nutrition/)
      * @return a list of Recipe objects returned by the search
-     * @throws Exception
      */
     @Override
     public List<Recipe> search(Map<String, String> parameters) throws Exception {
@@ -91,24 +117,10 @@ public class SpoonacularServiceImpl implements SpoonacularService {
 
         /* the initial search only includes basic recipe information, so we need to individually look up
          * recipes in a second set of requests to get ingredients, instructions, etc */
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .setHeader("X-RapidAPI-Host", APIHOST)
-                .setHeader("X-RapidAPI-Key", APIKEY)
-                .method("GET", HttpRequest.BodyPublishers.noBody())
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() != 200) {
-            logger.warn(url);
-            throw new Exception("Request to Spoonacular API failed!");
-        }
-
-        JsonObject object = parser.fromJson(response.body(), JsonElement.class)
-                .getAsJsonObject();
+        JsonObject object = sendGetRequest(url).getAsJsonObject();
 
         /* perform secondary lookup to get detailed recipe information for each recipe */
+        List<String> recipeIds = new ArrayList<>();
         List<Recipe> recipes = new ArrayList<>();
         for (JsonElement element : object.get("results").getAsJsonArray()) {
             String id = element.getAsJsonObject().get("id").getAsString();
@@ -118,23 +130,37 @@ public class SpoonacularServiceImpl implements SpoonacularService {
                 continue;
             }
 
-            request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" +
-                            id + "/information"))
-                    .setHeader("X-RapidAPI-Host", APIHOST)
-                    .setHeader("X-RapidAPI-Key", APIKEY)
-                    .method("GET", HttpRequest.BodyPublishers.noBody())
-                    .build();
-
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() != 200)
-                throw new Exception("Request to Spoonacular API failed!");
-
-            object = parser.fromJson(response.body(), JsonElement.class).getAsJsonObject();
-
-            recipes.add(parseRecipe(object));
+            recipeIds.add(id);
         }
+
+        /* send batch request */
+        url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/informationBulk?ids=" +
+                recipeIds.stream().map(Object::toString)
+                        .collect(Collectors.joining("%2C"));
+
+        JsonArray array = sendGetRequest(url).getAsJsonArray();
+
+        for (JsonElement e : array)
+            recipes.add(parseRecipe(e.getAsJsonObject()));
+
+        logger.warn(String.valueOf(recipeIds.size()));
+
+        return recipes;
+    }
+
+    /**
+     * @return a list of recommended recipes
+     */
+    @Override
+    public List<Recipe> recommend() throws Exception {
+
+        String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/random?number=25";
+
+        JsonObject object = sendGetRequest(url).getAsJsonObject();
+
+        List<Recipe> recipes = new ArrayList<>();
+        for (JsonElement e : object.get("recipes").getAsJsonArray())
+            recipes.add(parseRecipe(e.getAsJsonObject()));
 
         return recipes;
     }
