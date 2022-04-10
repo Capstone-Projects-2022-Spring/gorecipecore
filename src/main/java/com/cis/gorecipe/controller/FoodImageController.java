@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -80,7 +81,7 @@ public class FoodImageController {
      */
     @PostMapping(path = "/upload/{userId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<List<Ingredient>> uploadImage(@RequestPart("image") MultipartFile image,
+    public ResponseEntity<FoodImage> uploadImage(@RequestPart("image") MultipartFile image,
                                                         @PathVariable("userId") Long userId) throws IOException {
 
         User user = userRepository
@@ -115,7 +116,7 @@ public class FoodImageController {
 
         foodImageRepository.saveAndFlush(foodImage);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ingredients);
+        return ResponseEntity.status(HttpStatus.CREATED).body(foodImage);
     }
 
     /**
@@ -150,5 +151,26 @@ public class FoodImageController {
                 );
 
         return s3Service.getFileUrl(foodImage.getS3objectId());
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<FoodImage> updateImageIngredients(@PathVariable String id,
+                                                            @RequestBody List<String> ingredients) {
+
+        FoodImage foodImage = foodImageRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new FoodImageNotFoundException(id)
+                );
+
+        Set<Ingredient> i = new HashSet<>();
+        for (String s : ingredients)
+            if (ingredientRepository.existsById(s))
+                i.add(ingredientRepository.getById(s));
+
+        foodImage.setImageOf(i);
+        foodImageRepository.save(foodImage);
+
+        return ResponseEntity.ok().body(foodImage);
     }
 }

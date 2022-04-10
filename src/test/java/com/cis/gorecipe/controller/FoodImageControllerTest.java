@@ -67,9 +67,9 @@ class FoodImageControllerTest extends BaseTest {
                 .getResponse()
                 .getContentAsString();
 
-        List<Ingredient> list = Arrays.asList(serializer.readValue(result, Ingredient[].class));
+        FoodImage foodImage = serializer.readValue(result, FoodImage.class);
 
-        assertEquals(list.size(), 2);
+        assertEquals(foodImage.getImageOf().size(), 2);
     }
 
     /**

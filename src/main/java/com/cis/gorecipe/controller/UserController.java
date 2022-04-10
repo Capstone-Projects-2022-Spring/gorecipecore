@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -334,6 +333,8 @@ public class UserController {
         recipes.add(recipe);
         user.setSavedRecipes(recipes);
 
+        userRepository.save(user);
+
         return ResponseEntity.ok().build();
     }
 
@@ -358,6 +359,8 @@ public class UserController {
         Set<Recipe> recipes = user.getSavedRecipes();
         recipes.remove(recipe);
         user.setSavedRecipes(recipes);
+
+        userRepository.save(user);
 
         return ResponseEntity.ok().build();
     }
@@ -396,9 +399,9 @@ public class UserController {
      * @param dietaryRestriction the id of the dietary restriction that the user is attempting to remove from their account
      * @return an HTTP response that confirms if the dietary restriction has been removed from the user's account
      */
-    @DeleteMapping("/{userId}/dietary-restrictions/")
-    public ResponseEntity<Void> removeDietaryRestrictionToAccount(@PathVariable Long userId,
-                                                                  @RequestParam String dietaryRestriction)  {
+    @DeleteMapping("/{userId}/dietary-restrictions")
+    public ResponseEntity<Void> removeDietaryRestrictionFromAccount(@PathVariable Long userId,
+                                                                    @RequestParam String dietaryRestriction)  {
 
         if (Arrays.stream(restrictions).collect(Collectors.toList()).contains(dietaryRestriction)) {
 
