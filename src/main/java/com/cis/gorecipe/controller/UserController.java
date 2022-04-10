@@ -23,12 +23,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class handles the API endpoints related to user account management
@@ -69,6 +69,10 @@ public class UserController {
 
 
     private final S3Service s3Service;
+
+    String[] restrictions = {"pescetarian", "lacto vegetarian", "ovo vegetarian", "vegan", "vegetarian",
+            "dairy", "egg", "gluten", "peanut", "sesame", "seafood",
+            "shellfish", "soy", "sulfite", "tree nut", "wheat"};
 
     /**
      * For parsing dates
@@ -313,7 +317,6 @@ public class UserController {
      * @param recipeId the id of the recipe which the user is attempting to save
      * @return an HTTP response that confirms if the recipe has been saved to the user's account
      */
-    @ApiIgnore
     @PostMapping("/{userId}/recipes/{recipeId}")
     public ResponseEntity<Void> saveRecipeToAccount(@PathVariable Long userId, @PathVariable Long recipeId) {
         User user = userRepository.findById(userId)
@@ -330,6 +333,8 @@ public class UserController {
         recipes.add(recipe);
         user.setSavedRecipes(recipes);
 
+        userRepository.save(user);
+
         return ResponseEntity.ok().build();
     }
 
@@ -338,7 +343,6 @@ public class UserController {
      * @param recipeId the id of the recipe which the user is attempting to remove from their account
      * @return an HTTP response that confirms if the recipe has been unsaved to the user's account
      */
-    @ApiIgnore
     @DeleteMapping("/{userId}/recipes/{recipeId}")
     public ResponseEntity<Void> removeSavedRecipeFromAccount(@PathVariable Long userId, @PathVariable Long recipeId) {
 
@@ -356,30 +360,66 @@ public class UserController {
         recipes.remove(recipe);
         user.setSavedRecipes(recipes);
 
+        userRepository.save(user);
+
         return ResponseEntity.ok().build();
     }
 
     /**
      * @param userId               the id of the user who is adding a dietary restriction to their account
-     * @param dietaryRestrictionId the id of the dietary restriction that the user is attempting to add to their account
+     * @param dietaryRestriction the id of the dietary restriction that the user is attempting to add to their account
      * @return an HTTP response that confirms if the dietary restriction has been added to the user's account
      */
-    @ApiIgnore
-    @PostMapping("/{userId}/dietary-restrictions/{dietaryRestrictionId}")
+    @PostMapping("/{userId}/dietary-restrictions")
     public ResponseEntity<Void> addDietaryRestrictionToAccount(@PathVariable Long userId,
-                                                               @PathVariable Long dietaryRestrictionId) {
-        return null;
+                                                               @RequestParam String dietaryRestriction) {
+
+        if (Arrays.stream(restrictions).collect(Collectors.toList()).contains(dietaryRestriction)) {
+
+            User user = userRepository
+                    .findById(userId)
+                    .orElseThrow(() ->
+                            new UserNotFoundException(userId)
+                    );
+
+            Set<String> dietaryRestrictions = user.getDietaryRestrictions();
+            dietaryRestrictions.add(dietaryRestriction);
+            user.setDietaryRestrictions(dietaryRestrictions);
+
+            userRepository.save(user);
+
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     /**
      * @param userId               the id of the user who is removing a dietary restriction from their account
-     * @param dietaryRestrictionId the id of the dietary restriction that the user is attempting to remove from their account
+     * @param dietaryRestriction the id of the dietary restriction that the user is attempting to remove from their account
      * @return an HTTP response that confirms if the dietary restriction has been removed from the user's account
      */
-    @ApiIgnore
-    @DeleteMapping("/{userId}/dietary-restrictions/{dietaryRestrictionId}")
-    public ResponseEntity<Void> removeDietaryRestrictionToAccount(@PathVariable Long userId,
-                                                                  @PathVariable Long dietaryRestrictionId) {
-        return null;
+    @DeleteMapping("/{userId}/dietary-restrictions")
+    public ResponseEntity<Void> removeDietaryRestrictionFromAccount(@PathVariable Long userId,
+                                                                    @RequestParam String dietaryRestriction)  {
+
+        if (Arrays.stream(restrictions).collect(Collectors.toList()).contains(dietaryRestriction)) {
+
+            User user = userRepository
+                    .findById(userId)
+                    .orElseThrow(() ->
+                            new UserNotFoundException(userId)
+                    );
+
+            Set<String> dietaryRestrictions = user.getDietaryRestrictions();
+            dietaryRestrictions.remove(dietaryRestriction);
+            user.setDietaryRestrictions(dietaryRestrictions);
+
+            userRepository.save(user);
+
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

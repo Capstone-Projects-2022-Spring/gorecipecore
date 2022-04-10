@@ -2,6 +2,7 @@ package com.cis.gorecipe.controller;
 
 import com.cis.gorecipe.BaseTest;
 import com.cis.gorecipe.dto.UserDTO;
+import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -12,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.util.Date;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -288,110 +289,195 @@ class UserControllerTest extends BaseTest {
     /**
      * Test whether a user's saved recipes can be retrieved
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testGetSavedRecipes() {
-        fail("Not yet implemented");
+    public void testGetSavedRecipes() throws Exception {
+
+        List<Recipe> recipes = Arrays.asList(
+                new Recipe().setName("recipe1"),
+                new Recipe().setName("recipe2"));
+
+        recipes = recipeRepository.saveAll(recipes);
+
+        User user = mockUsers[4].setSavedRecipes(new HashSet<>(recipes));
+
+        user = userRepository.save(user);
+
+        String result = mockMvc.perform(get("/api/users/"+ user.getId() + "/recipes"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<Recipe> actual = Arrays.asList(serializer.readValue(result, Recipe[].class));
+
+        assertEquals(actual.stream().map(Recipe::getId).collect(Collectors.toList()),
+                     recipes.stream().map(Recipe::getId).collect(Collectors.toList()));
     }
 
     /**
      * Test whether the API will reject an attempt to retrieve recipes from an account that does not exist
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testGetSavedRecipesUserDoesNotExist() {
-        fail("Not yet implemented");
+    public void testGetSavedRecipesUserDoesNotExist() throws Exception {
+
+        mockMvc.perform(get("/api/users/42069/recipes"))
+                .andExpect(status().isNotFound());
+
     }
 
     /**
      * Test whether a recipe that exists can be saved to a user account that exists
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testSaveRecipeToAccount() {
-        fail("Not yet implemented");
+    public void testSaveRecipeToAccount() throws Exception {
+
+        List<Recipe> recipes = Arrays.asList(
+                new Recipe().setName("recipe1").setId(2L),
+                new Recipe().setName("recipe2").setId(3L));
+
+        recipes = recipeRepository.saveAll(recipes);
+
+        User user = mockUsers[4].setSavedRecipes(new HashSet<>(recipes));
+
+        user = userRepository.save(user);
+
+        mockMvc.perform(post("/api/users/" + user.getId() + "/recipes/" +
+                        recipes.get(0).getId()))
+                .andExpect(status().isOk());
     }
 
     /**
      * Test whether the API will reject an attempt to save a recipe that exists to an account that does not exist
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testSaveRecipeToAccountUserDoesNotExist() {
-        fail("Not yet implemented");
+    public void testSaveRecipeToAccountUserDoesNotExist() throws Exception {
+
+        mockMvc.perform(post("/api/users/42069/recipes/1"))
+                .andExpect(status().isNotFound());
+
     }
 
     /**
      * Test whether the API will reject an attempt to save a recipe that does not exist to an account that does exist
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testSaveRecipeDoesNotExistToAccount() {
-        fail("Not yet implemented");
+    public void testSaveRecipeDoesNotExistToAccount() throws Exception {
+
+        User user = mockUsers[0];
+        user = userRepository.save(user);
+
+        mockMvc.perform(post("/api/users/" + user.getId() + "/recipes/99999"))
+                .andExpect(status().isNotFound());
     }
 
     /**
      * Test whether a dietary restriction can be added to an account
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testAddDietaryRestrictionToAccount() {
-        fail("Not yet implemented");
+    public void testAddDietaryRestrictionToAccount() throws Exception {
+
+        User user = mockUsers[0];
+        user = userRepository.save(user);
+
+        mockMvc.perform(post("/api/users/" + user.getId() + "/dietary-restrictions")
+                        .param("dietaryRestriction", "vegan"))
+                .andExpect(status().isOk());
+
+        user = userRepository.getById(user.getId());
+
+        assertEquals(user.getDietaryRestrictions().size(), 1);
+        assertTrue(user.getDietaryRestrictions().contains("vegan"));
     }
 
     /**
      * Test whether the API will reject an attempt to add a dietary restriction to an account that does not exist
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testAddDietaryRestrictionToAccountUserDoesNotExist() {
-        fail("Not yet implemented");
+    public void testAddDietaryRestrictionToAccountUserDoesNotExist() throws Exception {
+
+        mockMvc.perform(post("/api/users/42069/dietary-restrictions")
+                        .param("dietaryRestriction", "vegan"))
+                .andExpect(status().isNotFound());
     }
 
     /**
      * Test whether the API will reject an attempt to add a dietary restriction that does not exist to an account that does exist
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testAddDietaryRestrictionDoesNotExistToAccount() {
-        fail("Not yet implemented");
+    public void testAddDietaryRestrictionDoesNotExistToAccount() throws Exception {
+
+        User user = mockUsers[0];
+        user = userRepository.save(user);
+
+        mockMvc.perform(post("/api/users/" + user.getId() + "/dietary-restrictions")
+                        .param("dietaryRestriction", "something"))
+                .andExpect(status().isBadRequest());
     }
 
     /**
      * Test whether a dietary restriction can be removed from an account
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testRemoveDietaryRestrictionFromAccount() {
-        fail("Not yet implemented");
+    public void testRemoveDietaryRestrictionFromAccount() throws Exception {
+
+        User user = mockUsers[0];
+
+        Set<String> restrictions = new HashSet<>();
+        restrictions.add("vegan");
+        restrictions.add("vegetarian");
+        restrictions.add("gluten");
+        user.setDietaryRestrictions(restrictions);
+        user = userRepository.save(user);
+
+        mockMvc.perform(delete("/api/users/" + user.getId() + "/dietary-restrictions")
+                        .param("dietaryRestriction", "vegan"))
+                .andExpect(status().isOk());
+
+        restrictions.remove("vegan");
+        user = userRepository.getById(user.getId());
+
+        assertEquals(user.getDietaryRestrictions(), restrictions);
     }
 
     /**
      * Test whether the API will reject an attempt to remove a dietary restriction from an account that does not exist
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testRemoveDietaryRestrictionFromAccountUserDoesNotExist() {
-        fail("Not yet implemented");
+    public void testRemoveDietaryRestrictionFromAccountUserDoesNotExist() throws Exception {
+
+        mockMvc.perform(delete("/api/users/42069/dietary-restrictions")
+                        .param("dietaryRestriction", "vegan"))
+                .andExpect(status().isNotFound());
     }
 
     /**
      * Test whether the API will reject an attempt to remove a dietary restriction that does not exist from an account that does exist
      */
-    @Disabled
     @Test
     @DirtiesContext
-    public void testRemoveDietaryRestrictionDoesNotExistFromAccount() {
-        fail("Not yet implemented");
+    public void testRemoveDietaryRestrictionDoesNotExistFromAccount() throws Exception {
+        User user = mockUsers[0];
+
+        Set<String> restrictions = new HashSet<>();
+        restrictions.add("vegan");
+        restrictions.add("vegetarian");
+        restrictions.add("gluten");
+        user.setDietaryRestrictions(restrictions);
+        user = userRepository.save(user);
+
+        System.out.println(mockMvc.perform(delete("/api/users/" + user.getId() + "/dietary-restrictions")
+                        .param("dietaryRestriction", "something"))
+                .andExpect(status().isBadRequest())
+                .andReturn().getRequest().getRequestURL());
     }
 }

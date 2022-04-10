@@ -88,9 +88,9 @@ public class User {
     /**
      * A list of restrictions on which recipes the user can cook
      */
-    @ManyToMany(fetch = FetchType.LAZY)
     @Column(nullable = false)
-    private Set<DietaryRestriction> dietaryRestrictions = new HashSet<>();
+    @ElementCollection
+    private Set<String> dietaryRestrictions = new HashSet<>();
 
     @Override
     public String toString() {

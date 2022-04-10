@@ -52,7 +52,7 @@ public class Application {
         return new ApiInfo(
                 "GoRecipe Core",
                 "REST API for GoRecipe",
-                "1.0.0",
+                "3.0.0",
                 null,
                 new Contact("Yaki Lebovits", "https://www.cis.temple.edu", "yakir@temple.edu"),
                 "GPL 2",

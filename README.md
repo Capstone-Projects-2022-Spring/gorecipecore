@@ -1,12 +1,11 @@
 ### This is the backend application for [GoRecipe](https://github.com/Capstone-Projects-2022-Spring/project-gorecipe)
 
-### See [here](https://capstone-projects-2022-spring.github.io/gorecipecore/) for GoRecipe Core's JavaDoc.
+### See [here](https://capstone-projects-2022-spring.github.io/gorecipecore/) for GoRecipe Core's JavaDoc
 
----
 # How to Run
 This application relies on environment variables to store secrets, keys, and database information. The following 
 environment variables must be set before running or testing the application. GoRecipe Core relies on a
-MySQL database. 
+MySQL database. Before running, ensure that your MySQL database, and AWS S3 bucket are up.
 
 | Environment Variable | Description|
 |----------------------|------------|
@@ -35,5 +34,5 @@ MySQL database.
 6. Visit localhost:8080/swagger-ui/#/ to see API endpoints and models
 
 # How to Test
-With the repository cloned and Maven installed, run `mvn test`. The unit tests are based on JUnit and testcontainers;
+With the repository cloned and Maven installed, run `mvn test`. The unit tests rely on JUnit and MySQL testcontainers;
 Docker needs to be installed with the proper permissions for the tests to run. 

@@ -1,11 +1,14 @@
 package com.cis.gorecipe.controller;
 
 import com.cis.gorecipe.exception.RecipeNotFoundException;
+import com.cis.gorecipe.exception.UserNotFoundException;
 import com.cis.gorecipe.model.Ingredient;
 import com.cis.gorecipe.model.Recipe;
+import com.cis.gorecipe.model.User;
 import com.cis.gorecipe.repository.DietaryRestrictionRepository;
 import com.cis.gorecipe.repository.IngredientRepository;
 import com.cis.gorecipe.repository.RecipeRepository;
+import com.cis.gorecipe.repository.UserRepository;
 import com.cis.gorecipe.service.SpoonacularService;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.PropertyValueException;
@@ -44,6 +47,8 @@ public class RecipeController {
      */
     private final IngredientRepository ingredientRepository;
 
+    private final UserRepository userRepository;
+
     /**
      * For interfacing with the DietaryRestriction table in the database
      */
@@ -55,10 +60,11 @@ public class RecipeController {
     private final SpoonacularService spoonacularService;
 
     public RecipeController(RecipeRepository recipeRepository, IngredientRepository ingredientRepository,
-                            DietaryRestrictionRepository dietaryRestrictionRepository,
+                            UserRepository userRepository, DietaryRestrictionRepository dietaryRestrictionRepository,
                             SpoonacularService spoonacularService) {
         this.recipeRepository = recipeRepository;
         this.ingredientRepository = ingredientRepository;
+        this.userRepository = userRepository;
         this.dietaryRestrictionRepository = dietaryRestrictionRepository;
         this.spoonacularService = spoonacularService;
     }
@@ -136,20 +142,23 @@ public class RecipeController {
                     "<b>Cuisine is a comma separated string of 1 or more of the following:</b> african," +
                     " chinese, japanese, korean, vietnamese, thai, indian, british, irish, french, " +
                     "italian, mexican, spanish, middle eastern, jewish, american, cajun, southern," +
-                    " greek, german, nordic, eastern european, caribbean, or latin american ")
+                    " greek, german, nordic, eastern european, caribbean, or latin american\n" +
+                    "<b>Ingredients is a comma separated string of 0 or more ingredient names (e.g. tomato, mushroom, etc)")
     public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam(name = "intolerances", required = false) String intolerances,
                                                       @RequestParam(name = "diet", required = false) String diet,
                                                       @RequestParam(name = "cuisine", required = false) String cuisine,
-                                                      @RequestParam(name = "query") String query) throws Exception {
+                                                      @RequestParam(name = "query") String query,
+                                                      @RequestParam(name = "ingredients", required = false) String ingredients) throws Exception {
 
         Map<String, String> searchParameters = new HashMap<>();
 
         searchParameters.put("query", query);
         searchParameters.put("instructionsRequired", "True");
-        searchParameters.put("number", "10"); // return 100 results
+        searchParameters.put("number", "25"); // return 100 results
         searchParameters.put("cuisine", cuisine);
         searchParameters.put("diet", diet);
         searchParameters.put("intolerances", intolerances);
+        searchParameters.put("ingredients", ingredients);
 
         List<Recipe> recipes = spoonacularService.search(searchParameters);
 
@@ -178,5 +187,21 @@ public class RecipeController {
                 .collect(Collectors.toList()));
 
         return ResponseEntity.ok().body(recipes);
+    }
+
+    /**
+     *
+     * @param userId the ID of the user whom we would like to recommend recipes to
+     * @return a list of recommended recipes
+     */
+    @GetMapping("/recommend/{userId}")
+    public ResponseEntity<List<Recipe>> getRecommendedRecipes(@PathVariable Long userId) throws Exception {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(userId));
+
+
+        return ResponseEntity.ok(spoonacularService.recommend(user.getSavedRecipes()));
     }
 }
