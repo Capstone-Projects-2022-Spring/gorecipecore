@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -310,7 +311,8 @@ class UserControllerTest extends BaseTest {
 
         List<Recipe> actual = Arrays.asList(serializer.readValue(result, Recipe[].class));
 
-        assertEquals(actual.stream().map(Recipe::getId), recipes.stream().map(Recipe::getId));
+        assertEquals(actual.stream().map(Recipe::getId).collect(Collectors.toList()),
+                     recipes.stream().map(Recipe::getId).collect(Collectors.toList()));
     }
 
     /**
