@@ -142,11 +142,13 @@ public class RecipeController {
                     "<b>Cuisine is a comma separated string of 1 or more of the following:</b> african," +
                     " chinese, japanese, korean, vietnamese, thai, indian, british, irish, french, " +
                     "italian, mexican, spanish, middle eastern, jewish, american, cajun, southern," +
-                    " greek, german, nordic, eastern european, caribbean, or latin american ")
+                    " greek, german, nordic, eastern european, caribbean, or latin american\n" +
+                    "<b>Ingredients is a comma separated string of 0 or more ingredient names (e.g. tomato, mushroom, etc)")
     public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam(name = "intolerances", required = false) String intolerances,
                                                       @RequestParam(name = "diet", required = false) String diet,
                                                       @RequestParam(name = "cuisine", required = false) String cuisine,
-                                                      @RequestParam(name = "query") String query) throws Exception {
+                                                      @RequestParam(name = "query") String query,
+                                                      @RequestParam(name = "ingredients", required = false) String ingredients) throws Exception {
 
         Map<String, String> searchParameters = new HashMap<>();
 
@@ -156,6 +158,7 @@ public class RecipeController {
         searchParameters.put("cuisine", cuisine);
         searchParameters.put("diet", diet);
         searchParameters.put("intolerances", intolerances);
+        searchParameters.put("ingredients", ingredients);
 
         List<Recipe> recipes = spoonacularService.search(searchParameters);
 
@@ -198,6 +201,7 @@ public class RecipeController {
                 .orElseThrow(() ->
                         new UserNotFoundException(userId));
 
-        return ResponseEntity.ok(spoonacularService.recommend());
+
+        return ResponseEntity.ok(spoonacularService.recommend(user.getSavedRecipes()));
     }
 }

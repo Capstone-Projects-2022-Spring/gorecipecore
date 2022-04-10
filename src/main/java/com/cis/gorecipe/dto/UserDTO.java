@@ -67,7 +67,7 @@ public class UserDTO {
     /**
      * A list of restrictions on which recipes the user can cook
      */
-    private Set<DietaryRestriction> dietaryRestrictions;
+    private Set<String> dietaryRestrictions;
 
     /**
      * @param user a User object to be converted for serialization

@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -90,7 +88,7 @@ public class SpoonacularServiceImpl implements SpoonacularService {
     @Override
     public List<Recipe> search(Map<String, String> parameters) throws Exception {
 
-        String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/search?";
+        String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/complexSearch?";
 
         if (parameters.containsKey("query"))
             url += "query=" + parameters.get("query") + "&";
@@ -109,6 +107,9 @@ public class SpoonacularServiceImpl implements SpoonacularService {
 
         if (parameters.get("intolerances") != null)
             url += "intolerances=" + parameters.get("intolerances");
+
+        if (parameters.get("ingredients") != null)
+            url += "includeIngredients=" + parameters.get("ingredients");
 
         if (url.endsWith("&"))
             url = url.substring(0, url.length() - 1);
@@ -152,14 +153,40 @@ public class SpoonacularServiceImpl implements SpoonacularService {
      * @return a list of recommended recipes
      */
     @Override
-    public List<Recipe> recommend() throws Exception {
+    public List<Recipe> recommend(Set<Recipe> userRecipes) throws Exception {
 
-        String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/random?number=25";
+        logger.warn(String.valueOf(userRecipes.size()));
+
+        Recipe r = new ArrayList<>(userRecipes)
+                .get(new Random().nextInt(userRecipes.size()));
+
+        String url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/"
+                + r.getSpoonacularId() + "/similar";
 
         JsonObject object = sendGetRequest(url).getAsJsonObject();
 
+        /* perform secondary lookup to get detailed recipe information for each recipe */
+        List<String> recipeIds = new ArrayList<>();
         List<Recipe> recipes = new ArrayList<>();
-        for (JsonElement e : object.get("recipes").getAsJsonArray())
+        for (JsonElement element : object.get("results").getAsJsonArray()) {
+            String id = element.getAsJsonObject().get("id").getAsString();
+
+            if (recipeRepository.existsBySpoonacularId(Long.parseLong(id))) {
+                recipes.add(recipeRepository.findRecipeBySpoonacularId(Long.parseLong(id)));
+                continue;
+            }
+
+            recipeIds.add(id);
+        }
+
+        /* send batch request */
+        url = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/informationBulk?ids=" +
+                recipeIds.stream().map(Object::toString)
+                        .collect(Collectors.joining("%2C"));
+
+        JsonArray array = sendGetRequest(url).getAsJsonArray();
+
+        for (JsonElement e : array)
             recipes.add(parseRecipe(e.getAsJsonObject()));
 
         return recipes;

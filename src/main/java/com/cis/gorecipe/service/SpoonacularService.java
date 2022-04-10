@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import java.net.http.HttpClient;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Interface for SpoonacularServiceImpl
@@ -34,5 +35,5 @@ public interface SpoonacularService {
 
     List<Recipe> search(Map<String, String> searchParameters) throws Exception;
 
-    List<Recipe> recommend() throws Exception;
+    List<Recipe> recommend(Set<Recipe> userRecipes) throws Exception;
 }
