@@ -310,7 +310,7 @@ class UserControllerTest extends BaseTest {
 
         List<Recipe> actual = Arrays.asList(serializer.readValue(result, Recipe[].class));
 
-        assertEquals(actual, recipes);
+        assertEquals(actual.stream().map(Recipe::getId), recipes.stream().map(Recipe::getId));
     }
 
     /**
