@@ -57,20 +57,21 @@ public class SpoonacularServiceImpl implements SpoonacularService {
      * @param result the JSON object representation of the recipe
      * @return a Recipe object containing the information parsed from the JSON
      */
-    private Recipe parseRecipe(JsonObject result) {
+    private Optional<Recipe> parseRecipe(JsonObject result) {
+
+        if (result.get("instructions").isJsonNull()) {
+            return Optional.empty();
+        }
 
         Recipe recipe = new Recipe()
                 .setName(result.get("title").getAsString())
                 .setPrepTime(result.get("readyInMinutes").getAsInt())
                 .setSpoonacularId(result.get("id").getAsLong())
-                .setSourceURL(result.get("sourceUrl").toString());
+                .setSourceURL(result.get("sourceUrl").toString())
+                .setInstructions(result.get("instructions").toString());
 
-        /* not ideal, but the random recipe API might return recipes without instructions */
-        if (result.get("instructions") != null)
-                recipe.setInstructions(result.get("instructions").toString());
-
-        if (result.get("image") != null)
-               recipe.setImageURL(result.get("image").toString());
+        if (!result.get("image").isJsonNull())
+               recipe.setImageURL(result.get("image").getAsString());
 
         for (JsonElement e : result.get("extendedIngredients").getAsJsonArray()) {
             JsonObject o = e.getAsJsonObject();
@@ -80,7 +81,7 @@ public class SpoonacularServiceImpl implements SpoonacularService {
             recipe.getVerboseIngredients().add(o.get("original").toString());
         }
 
-        return recipe;
+        return Optional.of(recipe);
     }
 
     /**
@@ -145,7 +146,9 @@ public class SpoonacularServiceImpl implements SpoonacularService {
         JsonArray array = sendGetRequest(url).getAsJsonArray();
 
         for (JsonElement e : array)
-            recipes.add(parseRecipe(e.getAsJsonObject()));
+            parseRecipe(e.getAsJsonObject())
+                    .ifPresent(recipes::add);
+
 
         logger.warn(String.valueOf(recipeIds.size()));
 
@@ -194,7 +197,8 @@ public class SpoonacularServiceImpl implements SpoonacularService {
         JsonArray array = sendGetRequest(url).getAsJsonArray();
 
         for (JsonElement e : array)
-            recipes.add(parseRecipe(e.getAsJsonObject()));
+            parseRecipe(e.getAsJsonObject())
+                    .ifPresent(recipes::add);
 
         return recipes;
     }
