@@ -69,6 +69,35 @@ public class RecipeController {
         this.spoonacularService = spoonacularService;
     }
 
+    private List<Recipe> saveRecipes(List<Recipe> recipes) {
+
+        /* a very stupid workaround for ManyToMany relation b/c I don't really understand the best way to use them
+         * save the recipe with no ingredients -> save the ingredients -> save the recipe with ingredients */
+        for (Recipe r : recipes) {
+
+            if (recipeRepository.existsByName(r.getName()))
+                continue;
+
+            List<Ingredient> i = r.getIngredients();
+            r.setIngredients(new ArrayList<>());
+            recipeRepository.save(r);
+            ingredientRepository.saveAll(i);
+            r.setIngredients(i);
+        }
+
+        recipes.forEach((r) -> {
+            if (!recipeRepository.existsByName(r.getName()))
+                recipeRepository.save(r);
+        });
+
+        recipes = recipeRepository.findAllByNameIn(recipes
+                .stream()
+                .map(Recipe::getName)
+                .collect(Collectors.toList()));
+
+        return recipes;
+    }
+
     /**
      * @param recipe a recipe to be added to GoRecipe's collection
      * @return the recipe object created by the upload
@@ -162,29 +191,7 @@ public class RecipeController {
 
         List<Recipe> recipes = spoonacularService.search(searchParameters);
 
-        /* a very stupid workaround for ManyToMany relation b/c I don't really understand the best way to use them
-         * save the recipe with no ingredients -> save the ingredients -> save the recipe with ingredients */
-        for (Recipe r : recipes) {
-
-            if (recipeRepository.existsByName(r.getName()))
-                continue;
-
-            List<Ingredient> i = r.getIngredients();
-            r.setIngredients(new ArrayList<>());
-            recipeRepository.save(r);
-            ingredientRepository.saveAll(i);
-            r.setIngredients(i);
-        }
-
-        recipes.forEach((r) -> {
-            if (!recipeRepository.existsByName(r.getName()))
-                recipeRepository.save(r);
-        });
-
-        recipes = recipeRepository.findAllByNameIn(recipes
-                .stream()
-                .map(Recipe::getName)
-                .collect(Collectors.toList()));
+        recipes = saveRecipes(recipes);
 
         return ResponseEntity.ok().body(recipes);
     }
@@ -203,5 +210,45 @@ public class RecipeController {
 
 
         return ResponseEntity.ok(spoonacularService.recommend(user.getSavedRecipes()));
+    }
+
+    @GetMapping("/explore")
+    public ResponseEntity<Map<String, List<Recipe>>> getExplorePage() throws Exception {
+
+        Map<String, List<Recipe>> explore_info = new HashMap<>();
+        Map<String, String> searchParameters = new HashMap<>();
+
+        searchParameters.put("instructionsRequired", "True");
+        searchParameters.put("number", "10"); // return 100 results
+        searchParameters.put("type", null);
+
+        searchParameters.put("diet", "vegan");
+        explore_info.put("vegan", spoonacularService.search(searchParameters));
+        searchParameters.remove("diet");
+
+        searchParameters.put("type", "main course");
+        explore_info.put("dinner", spoonacularService.search(searchParameters));
+
+        searchParameters.put("type", "breakfast");
+        explore_info.put("breakfast", spoonacularService.search(searchParameters));
+
+        searchParameters.put("type", "dessert");
+        explore_info.put("dessert", spoonacularService.search(searchParameters));
+
+        explore_info.replaceAll(
+                (k, v) -> saveRecipes(explore_info.get(k))
+        );
+
+        explore_info.put("quick",
+                recipeRepository.findAll()
+                        .stream()
+                        .filter((recipe) ->
+                                recipe.getPrepTime() <= 30
+                        )
+                        .limit(10)
+                        .collect(Collectors.toList())
+        );
+
+        return ResponseEntity.ok(explore_info);
     }
 }

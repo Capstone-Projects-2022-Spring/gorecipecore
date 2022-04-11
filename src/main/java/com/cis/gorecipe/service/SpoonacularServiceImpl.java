@@ -67,8 +67,8 @@ public class SpoonacularServiceImpl implements SpoonacularService {
                 .setName(result.get("title").getAsString())
                 .setPrepTime(result.get("readyInMinutes").getAsInt())
                 .setSpoonacularId(result.get("id").getAsLong())
-                .setSourceURL(result.get("sourceUrl").toString())
-                .setInstructions(result.get("instructions").toString());
+                .setSourceURL(result.get("sourceUrl").getAsString())
+                .setInstructions(result.get("instructions").getAsString());
 
         if (!result.get("image").isJsonNull())
                recipe.setImageURL(result.get("image").getAsString());
@@ -102,6 +102,9 @@ public class SpoonacularServiceImpl implements SpoonacularService {
 
         if (parameters.containsKey("number"))
             url += "number=" + parameters.get("number") + "&";
+
+        if (parameters.containsKey("type"))
+            url += "type=" + parameters.get("type") + "&";
 
         if (parameters.get("cuisine") != null)
             url += "cuisine=" + parameters.get("cuisine") + "&";
@@ -148,9 +151,6 @@ public class SpoonacularServiceImpl implements SpoonacularService {
         for (JsonElement e : array)
             parseRecipe(e.getAsJsonObject())
                     .ifPresent(recipes::add);
-
-
-        logger.warn(String.valueOf(recipeIds.size()));
 
         return recipes;
     }
