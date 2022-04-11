@@ -78,7 +78,7 @@ public class SpoonacularServiceImpl implements SpoonacularService {
             recipe.addIngredient(new Ingredient()
                     .setName(o.get("name").getAsString()));
 
-            recipe.getVerboseIngredients().add(o.get("original").toString());
+            recipe.getVerboseIngredients().add(o.get("original").getAsString());
         }
 
         return Optional.of(recipe);
