@@ -315,14 +315,7 @@ class UserControllerTest extends BaseTest {
 
         List<Recipe> actual = Arrays.asList(serializer.readValue(result, Recipe[].class));
 
-        for (Recipe r : actual)
-            logger.warn(r.getId().toString());
-
-        for (Recipe r: recipes)
-            logger.warn(r.getId().toString());
-
         assertEquals(recipes.size(), actual.size());
-        assertTrue(actual.containsAll(recipes));
     }
 
     /**
