@@ -69,15 +69,13 @@ public class UserController {
 
 
     private final S3Service s3Service;
-
-    String[] restrictions = {"pescetarian", "lacto vegetarian", "ovo vegetarian", "vegan", "vegetarian",
-            "dairy", "egg", "gluten", "peanut", "sesame", "seafood",
-            "shellfish", "soy", "sulfite", "tree nut", "wheat"};
-
     /**
      * For parsing dates
      */
     private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+    String[] restrictions = {"pescetarian", "lacto vegetarian", "ovo vegetarian", "vegan", "vegetarian",
+            "dairy", "egg", "gluten", "peanut", "sesame", "seafood",
+            "shellfish", "soy", "sulfite", "tree nut", "wheat"};
 
     public UserController(UserRepository userRepository, RecipeRepository recipeRepository,
                           IngredientRepository ingredientRepository, RecipeCalendarItemRepository calendarRepository, S3Service s3Service) {
@@ -97,7 +95,7 @@ public class UserController {
                         new UserNotFoundException(id)
                 );
 
-        if (!FileUtil.isImage(image))
+        if (FileUtil.isImage(image))
             return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();
 
         String fileName = "profile_picture_" + user.getId() + "." +
@@ -366,7 +364,7 @@ public class UserController {
     }
 
     /**
-     * @param userId               the id of the user who is adding a dietary restriction to their account
+     * @param userId             the id of the user who is adding a dietary restriction to their account
      * @param dietaryRestriction the id of the dietary restriction that the user is attempting to add to their account
      * @return an HTTP response that confirms if the dietary restriction has been added to the user's account
      */
@@ -395,13 +393,13 @@ public class UserController {
     }
 
     /**
-     * @param userId               the id of the user who is removing a dietary restriction from their account
+     * @param userId             the id of the user who is removing a dietary restriction from their account
      * @param dietaryRestriction the id of the dietary restriction that the user is attempting to remove from their account
      * @return an HTTP response that confirms if the dietary restriction has been removed from the user's account
      */
     @DeleteMapping("/{userId}/dietary-restrictions")
     public ResponseEntity<Void> removeDietaryRestrictionFromAccount(@PathVariable Long userId,
-                                                                    @RequestParam String dietaryRestriction)  {
+                                                                    @RequestParam String dietaryRestriction) {
 
         if (Arrays.stream(restrictions).collect(Collectors.toList()).contains(dietaryRestriction)) {
 

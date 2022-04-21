@@ -160,7 +160,6 @@ public class RecipeController {
      * @param cuisine      an optional comma separated string of 1 or more cuisines
      * @param query        a required string that should occur somewhere in the recipe (either recipe body or title)
      * @return a list of recipes that meet the searchQuery parameters
-     * @throws Exception
      */
     @GetMapping("/search")
     @ApiOperation(value = "Search for recipes",
@@ -197,7 +196,6 @@ public class RecipeController {
     }
 
     /**
-     *
      * @param userId the ID of the user whom we would like to recommend recipes to
      * @return a list of recommended recipes
      */
@@ -215,6 +213,9 @@ public class RecipeController {
         return ResponseEntity.ok().body(recipes);
     }
 
+    /**
+     * @return five lists of new recipes in different categories
+     */
     @GetMapping("/explore")
     public ResponseEntity<Map<String, List<Recipe>>> getExplorePage() throws Exception {
 

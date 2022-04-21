@@ -17,6 +17,6 @@ public class FileUtil {
 
         String type = file.getContentType();
         type = Objects.requireNonNull(type).split("/")[0];
-        return type.equals("image");
+        return !type.equals("image");
     }
 }

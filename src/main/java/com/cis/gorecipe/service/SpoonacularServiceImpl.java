@@ -71,7 +71,7 @@ public class SpoonacularServiceImpl implements SpoonacularService {
                 .setInstructions(result.get("instructions").getAsString());
 
         if (!result.get("image").isJsonNull())
-               recipe.setImageURL(result.get("image").getAsString());
+            recipe.setImageURL(result.get("image").getAsString());
 
         for (JsonElement e : result.get("extendedIngredients").getAsJsonArray()) {
             JsonObject o = e.getAsJsonObject();
@@ -86,7 +86,7 @@ public class SpoonacularServiceImpl implements SpoonacularService {
 
     /**
      * @param parameters a map of the search parameters for the Spoonacular API
-     *                    (see https://rapidapi.com/spoonacular/api/recipe-food-nutrition/)
+     *                   (see https://rapidapi.com/spoonacular/api/recipe-food-nutrition/)
      * @return a list of Recipe objects returned by the search
      */
     @Override
@@ -156,7 +156,8 @@ public class SpoonacularServiceImpl implements SpoonacularService {
     }
 
     /**
-     * @return a list of recommended recipes
+     * @param userRecipes the list of recipes saved to a specific user account
+     * @return a list of recommended recipes based on the saved recipes
      */
     @Override
     public List<Recipe> recommend(Set<Recipe> userRecipes) throws Exception {
