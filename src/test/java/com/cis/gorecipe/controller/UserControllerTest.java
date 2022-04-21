@@ -4,9 +4,11 @@ import com.cis.gorecipe.BaseTest;
 import com.cis.gorecipe.dto.UserDTO;
 import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.model.User;
+import org.assertj.core.api.HamcrestCondition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -311,8 +315,14 @@ class UserControllerTest extends BaseTest {
 
         List<Recipe> actual = Arrays.asList(serializer.readValue(result, Recipe[].class));
 
-        assertEquals(actual.stream().map(Recipe::getId).collect(Collectors.toList()),
-                     recipes.stream().map(Recipe::getId).collect(Collectors.toList()));
+        for (Recipe r : actual)
+            logger.warn(r.getId().toString());
+
+        for (Recipe r: recipes)
+            logger.warn(r.getId().toString());
+
+        assertEquals(recipes.size(), actual.size());
+        assertTrue(actual.containsAll(recipes));
     }
 
     /**

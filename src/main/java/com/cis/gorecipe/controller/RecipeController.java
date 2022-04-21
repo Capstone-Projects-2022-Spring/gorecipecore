@@ -208,8 +208,11 @@ public class RecipeController {
                 .orElseThrow(() ->
                         new UserNotFoundException(userId));
 
+        List<Recipe> recipes = spoonacularService.recommend(user.getSavedRecipes());
 
-        return ResponseEntity.ok(spoonacularService.recommend(user.getSavedRecipes()));
+        recipes = saveRecipes(recipes);
+
+        return ResponseEntity.ok().body(recipes);
     }
 
     @GetMapping("/explore")

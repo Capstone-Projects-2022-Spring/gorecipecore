@@ -169,7 +169,7 @@ public class FoodImageController {
                 i.add(ingredientRepository.getById(s));
 
         foodImage.setImageOf(i);
-        foodImageRepository.save(foodImage);
+        foodImage = foodImageRepository.save(foodImage);
 
         return ResponseEntity.ok().body(foodImage);
     }
