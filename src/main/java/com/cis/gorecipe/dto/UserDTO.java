@@ -1,6 +1,5 @@
 package com.cis.gorecipe.dto;
 
-import com.cis.gorecipe.model.DietaryRestriction;
 import com.cis.gorecipe.model.Ingredient;
 import com.cis.gorecipe.model.Recipe;
 import com.cis.gorecipe.model.User;

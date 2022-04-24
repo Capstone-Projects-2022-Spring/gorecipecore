@@ -19,7 +19,7 @@ import java.io.InputStream;
 public class S3ServiceImpl implements S3Service {
 
     /**
-     * @param fileName the name of the image file being uploaded
+     * @param fileName    the name of the image file being uploaded
      * @param inputStream the file being uploaded as a bytestream
      * @param contentType the MIME type of the file
      * @return the URL of the file that has been uploaded to S3

@@ -67,18 +67,18 @@ public class SpoonacularServiceImpl implements SpoonacularService {
                 .setName(result.get("title").getAsString())
                 .setPrepTime(result.get("readyInMinutes").getAsInt())
                 .setSpoonacularId(result.get("id").getAsLong())
-                .setSourceURL(result.get("sourceUrl").toString())
-                .setInstructions(result.get("instructions").toString());
+                .setSourceURL(result.get("sourceUrl").getAsString())
+                .setInstructions(result.get("instructions").getAsString());
 
         if (!result.get("image").isJsonNull())
-               recipe.setImageURL(result.get("image").getAsString());
+            recipe.setImageURL(result.get("image").getAsString());
 
         for (JsonElement e : result.get("extendedIngredients").getAsJsonArray()) {
             JsonObject o = e.getAsJsonObject();
             recipe.addIngredient(new Ingredient()
                     .setName(o.get("name").getAsString()));
 
-            recipe.getVerboseIngredients().add(o.get("original").toString());
+            recipe.getVerboseIngredients().add(o.get("original").getAsString());
         }
 
         return Optional.of(recipe);
@@ -86,7 +86,7 @@ public class SpoonacularServiceImpl implements SpoonacularService {
 
     /**
      * @param parameters a map of the search parameters for the Spoonacular API
-     *                    (see https://rapidapi.com/spoonacular/api/recipe-food-nutrition/)
+     *                   (see https://rapidapi.com/spoonacular/api/recipe-food-nutrition/)
      * @return a list of Recipe objects returned by the search
      */
     @Override
@@ -102,6 +102,9 @@ public class SpoonacularServiceImpl implements SpoonacularService {
 
         if (parameters.containsKey("number"))
             url += "number=" + parameters.get("number") + "&";
+
+        if (parameters.containsKey("type"))
+            url += "type=" + parameters.get("type") + "&";
 
         if (parameters.get("cuisine") != null)
             url += "cuisine=" + parameters.get("cuisine") + "&";
@@ -149,14 +152,12 @@ public class SpoonacularServiceImpl implements SpoonacularService {
             parseRecipe(e.getAsJsonObject())
                     .ifPresent(recipes::add);
 
-
-        logger.warn(String.valueOf(recipeIds.size()));
-
         return recipes;
     }
 
     /**
-     * @return a list of recommended recipes
+     * @param userRecipes the list of recipes saved to a specific user account
+     * @return a list of recommended recipes based on the saved recipes
      */
     @Override
     public List<Recipe> recommend(Set<Recipe> userRecipes) throws Exception {

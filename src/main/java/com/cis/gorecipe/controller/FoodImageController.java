@@ -82,7 +82,7 @@ public class FoodImageController {
     @PostMapping(path = "/upload/{userId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FoodImage> uploadImage(@RequestPart("image") MultipartFile image,
-                                                        @PathVariable("userId") Long userId) throws IOException {
+                                                 @PathVariable("userId") Long userId) throws IOException {
 
         User user = userRepository
                 .findById(userId)
@@ -90,7 +90,7 @@ public class FoodImageController {
                         new UserNotFoundException("Unable to find user " + userId)
                 );
 
-        if (!FileUtil.isImage(image))
+        if (FileUtil.isImage(image))
             return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();
 
         String fileName = userId + "-" + System.currentTimeMillis() +
@@ -105,7 +105,7 @@ public class FoodImageController {
                 .collect(Collectors.toList());
 
         /* this is stupid, but it makes testing easier */
-        String s3ID = image_s3_URI.substring(image_s3_URI.lastIndexOf("/")+1);
+        String s3ID = image_s3_URI.substring(image_s3_URI.lastIndexOf("/") + 1);
 
         FoodImage foodImage = new FoodImage()
                 .setImageOf(new HashSet<>(ingredients))
@@ -153,6 +153,14 @@ public class FoodImageController {
         return s3Service.getFileUrl(foodImage.getS3objectId());
     }
 
+    /**
+     * This method allows users to correct misclassification of ingredients in images
+     * by supplying their owl list of ingredients
+     *
+     * @param id          the ID of the image object
+     * @param ingredients the list of new ingredients to associate with the image
+     * @return the updated image object
+     */
     @PostMapping("/{id}")
     public ResponseEntity<FoodImage> updateImageIngredients(@PathVariable String id,
                                                             @RequestBody List<String> ingredients) {
@@ -169,7 +177,7 @@ public class FoodImageController {
                 i.add(ingredientRepository.getById(s));
 
         foodImage.setImageOf(i);
-        foodImageRepository.save(foodImage);
+        foodImage = foodImageRepository.save(foodImage);
 
         return ResponseEntity.ok().body(foodImage);
     }
